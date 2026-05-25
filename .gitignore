@@ -1,0 +1,23 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Java
+target/
+*.class
+
+# Runtime
+logs/
+*.log
+.tools/
+.tmp/
+.jdks/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+application-local.yml
