@@ -28,6 +28,10 @@ public class Device {
     private Integer stepCount;
     private Instant lastOnlineAt;
     private Instant lastHeartbeatAt;
+
+    @Column(length = 64)
+    private String ownerName;
+
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -101,5 +105,13 @@ public class Device {
 
     public void setLastHeartbeatAt(Instant lastHeartbeatAt) {
         this.lastHeartbeatAt = lastHeartbeatAt;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 }
