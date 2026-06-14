@@ -5,13 +5,14 @@ spring:
   application:
     name: silver-care-iot-backend
   datasource:
-    url: jdbc:h2:mem:silvercare;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://127.0.0.1:3306/silver_care?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: silvercare
+    password: silvercare123
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
     open-in-view: false
     properties:
       hibernate:
@@ -23,7 +24,7 @@ silver-care:
     password: ${SILVER_CARE_ADMIN_PASSWORD:change-me}
   gateway:
     enabled: true
-    port: 9000
+    port: 9001
     idle-timeout-seconds: 180
     max-client-threads: 200
     client-queue-capacity: 200
