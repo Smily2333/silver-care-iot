@@ -1,0 +1,94 @@
+<!--位置轨迹页-->
+<view class="page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <text class="loading-icon">⏳</text>
+    <text>加载中...</text>
+  </view>
+
+  <view wx:else>
+    <!-- 顶部渐变头部 -->
+    <view class="page-header">
+      <text class="header-title">位置轨迹</text>
+      <text class="header-sub">实时位置与行动轨迹</text>
+
+      <!-- 最新定位信息 -->
+      <view class="location-info-row" wx:if="{{records.length > 0}}">
+        <view class="location-stat">
+          <text class="location-stat-val">{{records[0].gpsValid ? '有效' : '无效'}}</text>
+          <text class="location-stat-label">GPS状态</text>
+        </view>
+        <view class="location-stat-divider"></view>
+        <view class="location-stat">
+          <text class="location-stat-val">{{records[0].satelliteCount != null ? records[0].satelliteCount : '--'}}</text>
+          <text class="location-stat-label">卫星数</text>
+        </view>
+        <view class="location-stat-divider"></view>
+        <view class="location-stat">
+          <text class="location-stat-val">{{records[0].gsmSignal != null ? records[0].gsmSignal : '--'}}</text>
+          <text class="location-stat-label">信号强度</text>
+        </view>
+        <view class="location-stat-divider"></view>
+        <view class="location-stat">
+          <text class="location-stat-val">{{records[0].speed != null ? records[0].speed : '--'}}</text>
+          <text class="location-stat-label">速度(节)</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 地图 -->
+    <view class="map-wrap">
+      <map
+        id="trackMap"
+        class="track-map"
+        latitude="{{center.lat}}"
+        longitude="{{center.lng}}"
+        scale="14"
+        markers="{{markers}}"
+        polyline="{{polyline}}"
+        show-location="{{false}}"
+      />
+    </view>
+
+    <!-- 内容区 -->
+    <view class="content-area">
+      <!-- 最后定位时间 -->
+      <view class="card last-location-card" wx:if="{{records.length > 0}}">
+        <view class="last-location-row">
+          <view class="last-location-icon-wrap">
+            <text class="last-location-icon">📍</text>
+          </view>
+          <view class="last-location-info">
+            <text class="last-location-label">最后定位</text>
+            <text class="last-location-time">{{records[0].locatedAtStr}}</text>
+            <text class="last-location-coord">{{records[0].latitude}}, {{records[0].longitude}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 无数据 -->
+      <view class="card empty-card" wx:if="{{records.length === 0}}">
+        <text class="empty-icon">🗺</text>
+        <text class="empty-text">暂无有效位置数据</text>
+      </view>
+
+      <!-- 轨迹记录列表 -->
+      <view class="card" wx:if="{{records.length > 0}}">
+        <text class="section-title">轨迹记录（{{records.length}}条）</text>
+        <view
+          wx:for="{{records}}"
+          wx:key="id"
+          class="record-row"
+        >
+          <view class="timeline-dot-wrap">
+            <view class="timeline-dot {{index === 0 ? 'dot-first' : ''}}"></view>
+            <view class="timeline-line" wx:if="{{index < records.length - 1}}"></view>
+          </view>
+          <view class="record-content">
+            <text class="record-time">{{item.locatedAtStr}}</text>
+            <text class="record-coord">{{item.latitude}}, {{item.longitude}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

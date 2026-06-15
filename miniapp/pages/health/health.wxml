@@ -1,0 +1,71 @@
+<!--健康数据页-->
+<view class="page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <text class="loading-icon">⏳</text>
+    <text>加载中...</text>
+  </view>
+
+  <view wx:else>
+    <!-- 顶部渐变头部 -->
+    <view class="page-header">
+      <text class="header-title">健康数据</text>
+      <text class="header-sub">实时监测健康指标</text>
+
+      <!-- 最新数据大展示 -->
+      <view class="latest-metrics" wx:if="{{records.length > 0}}">
+        <view class="metric-big-item heart-item">
+          <view class="metric-big-icon">❤️</view>
+          <text class="metric-big-val">{{records[0].heartRate != null ? records[0].heartRate : '--'}}</text>
+          <text class="metric-big-unit">bpm 心率</text>
+        </view>
+        <view class="metric-big-item bp-item">
+          <view class="metric-big-icon">💉</view>
+          <text class="metric-big-val bp-val">
+            {{records[0].systolicPressure != null ? records[0].systolicPressure + '/' + records[0].diastolicPressure : '--'}}
+          </text>
+          <text class="metric-big-unit">mmHg 血压</text>
+        </view>
+        <view class="metric-big-item temp-item">
+          <view class="metric-big-icon">🌡</view>
+          <text class="metric-big-val">{{records[0].bodyTemperature != null ? records[0].bodyTemperature : '--'}}</text>
+          <text class="metric-big-unit">℃ 体温</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 内容区 -->
+    <view class="content-area">
+      <!-- 历史记录 -->
+      <view class="card">
+        <text class="section-title">历史记录（{{records.length}}条）</text>
+        <view wx:if="{{records.length === 0}}" class="empty-tip">
+          <text class="empty-text">暂无数据</text>
+        </view>
+        <view
+          wx:for="{{records}}"
+          wx:key="id"
+          class="record-row"
+        >
+          <view class="record-time-row">
+            <view class="record-dot"></view>
+            <text class="record-time">{{item.measuredAtStr}}</text>
+          </view>
+          <view class="record-tags">
+            <view wx:if="{{item.heartRate != null}}" class="record-tag heart-tag">
+              <text class="tag-icon">❤</text>
+              <text>{{item.heartRate}} bpm</text>
+            </view>
+            <view wx:if="{{item.systolicPressure != null}}" class="record-tag bp-tag">
+              <text class="tag-icon">💧</text>
+              <text>{{item.systolicPressure}}/{{item.diastolicPressure}}</text>
+            </view>
+            <view wx:if="{{item.bodyTemperature != null}}" class="record-tag temp-tag">
+              <text class="tag-icon">🌡</text>
+              <text>{{item.bodyTemperature}}℃</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,118 @@
+<!--设备概览页-->
+<view class="page" wx:if="{{!loading}}">
+  <!-- 顶部渐变头部 -->
+  <view class="page-header">
+    <view class="header-top">
+      <view class="device-name-row">
+        <text class="device-name">{{deviceNo}}</text>
+        <text class="{{data.device.status === 'ONLINE' ? 'tag-online' : 'tag-offline'}}">
+          {{data.device.status === 'ONLINE' ? '在线' : '离线'}}
+        </text>
+      </view>
+      <text class="device-model">{{data.device.model || '智能健康手表'}}</text>
+      <text class="last-heartbeat">最后同步：{{lastHeartbeat}}</text>
+    </view>
+
+    <!-- 电量 + 步数 行 -->
+    <view class="header-stats">
+      <view class="header-stat-item">
+        <view class="stat-icon-wrap battery-icon-wrap">
+          <text class="stat-icon">🔋</text>
+        </view>
+        <text class="stat-value">{{data.device.batteryLevel != null ? data.device.batteryLevel + '%' : '--'}}</text>
+        <text class="stat-label">电量</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="header-stat-item">
+        <view class="stat-icon-wrap steps-icon-wrap">
+          <text class="stat-icon">👟</text>
+        </view>
+        <text class="stat-value">{{data.device.stepCount != null ? data.device.stepCount : '--'}}</text>
+        <text class="stat-label">今日步数</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 内容区 -->
+  <view class="content-area">
+    <!-- 健康指标卡片 -->
+    <view wx:if="{{data.latestHealth}}" class="card health-card">
+      <view class="card-header-row">
+        <text class="section-title">健康数据</text>
+        <text class="measured-at">{{measuredAt}}</text>
+      </view>
+      <view class="health-metrics">
+        <!-- 心率 -->
+        <view class="metric-item">
+          <view class="metric-ring heart-ring">
+            <text class="metric-main-val">{{data.latestHealth.heartRate != null ? data.latestHealth.heartRate : '--'}}</text>
+          </view>
+          <text class="metric-label">心率</text>
+          <text class="metric-unit">bpm</text>
+        </view>
+        <!-- 血压 -->
+        <view class="metric-item">
+          <view class="metric-ring bp-ring">
+            <text class="metric-bp-val">{{data.latestHealth.systolicPressure != null ? data.latestHealth.systolicPressure : '--'}}</text>
+            <text class="metric-bp-sep">/</text>
+            <text class="metric-bp-val">{{data.latestHealth.diastolicPressure != null ? data.latestHealth.diastolicPressure : '--'}}</text>
+          </view>
+          <text class="metric-label">血压</text>
+          <text class="metric-unit">mmHg</text>
+        </view>
+        <!-- 体温 -->
+        <view class="metric-item">
+          <view class="metric-ring temp-ring">
+            <text class="metric-main-val">{{data.latestHealth.bodyTemperature != null ? data.latestHealth.bodyTemperature : '--'}}</text>
+          </view>
+          <text class="metric-label">体温</text>
+          <text class="metric-unit">℃</text>
+        </view>
+      </view>
+    </view>
+    <view class="card empty-health-card" wx:else>
+      <text class="empty-icon">💓</text>
+      <text class="empty-text">暂无健康数据</text>
+    </view>
+
+    <!-- 位置卡片 -->
+    <view class="card location-card" wx:if="{{data.latestLocation}}">
+      <view class="card-header-row">
+        <text class="section-title">最新位置</text>
+        <text class="measured-at">{{locatedAt}}</text>
+      </view>
+      <view class="location-row">
+        <view class="location-pin">
+          <text class="location-pin-icon">📍</text>
+        </view>
+        <view class="location-coords">
+          <text class="coord-text">纬度 {{data.latestLocation.latitude}}</text>
+          <text class="coord-text">经度 {{data.latestLocation.longitude}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 导航入口 -->
+    <view class="nav-grid">
+      <view class="nav-card" bindtap="goHealth">
+        <view class="nav-card-icon health-nav-icon">
+          <text>❤️</text>
+        </view>
+        <text class="nav-card-label">健康数据</text>
+        <text class="nav-card-sub">查看历史记录</text>
+      </view>
+      <view class="nav-card" bindtap="goLocation">
+        <view class="nav-card-icon location-nav-icon">
+          <text>🗺</text>
+        </view>
+        <text class="nav-card-label">位置轨迹</text>
+        <text class="nav-card-sub">查看行动轨迹</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="loading-wrap" wx:if="{{loading}}">
+  <text class="loading-icon">⏳</text>
+  <text>加载中...</text>
+</view>
