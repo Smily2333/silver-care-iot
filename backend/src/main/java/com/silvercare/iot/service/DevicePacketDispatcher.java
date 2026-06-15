@@ -47,10 +47,23 @@ public class DevicePacketDispatcher {
 
             switch (frame.command()) {
                 case "LK" -> handleHeartbeat(frame, connection);
-                case "btemp2" -> healthDataService.saveTemperature(device, frame, packetLog.getId());
-                case "bphrt" -> healthDataService.saveBloodPressureHeartRate(device, frame, packetLog.getId());
-                case "UD", "UD2", "AL", "UD_LTE", "UD_WCDMA", "UD_TDSCDMA", "UD_CDMA", "AL_LTE", "AL_WCDMA", "AL_TDSCDMA", "AL_CDMA" ->
+                case "btemp2" -> {
+                    healthDataService.saveTemperature(device, frame, packetLog.getId());
+                    sendAck(frame, connection);
+                }
+                case "bphrt" -> {
+                    healthDataService.saveBloodPressureHeartRate(device, frame, packetLog.getId());
+                    sendAck(frame, connection);
+                }
+                case "UD", "UD2", "UD_LTE", "UD_WCDMA", "UD_TDSCDMA", "UD_CDMA" ->
                         locationDataService.saveLocation(device, frame, packetLog.getId());
+                case "AL", "AL_LTE", "AL_WCDMA", "AL_TDSCDMA", "AL_CDMA" -> {
+                    locationDataService.saveLocation(device, frame, packetLog.getId());
+                    sendAck(frame, connection);
+                }
+                case "TKQ" -> sendAck(frame, connection);
+                case "CR", "UPLOAD" ->
+                        log.debug("Device {} acknowledged {}", frame.deviceNo(), frame.command());
                 default -> log.info("Packet command ignored for MVP: {}", frame.command());
             }
         } catch (ProtocolParseException ex) {
@@ -62,6 +75,15 @@ public class DevicePacketDispatcher {
     public void onConnectionClosed(DeviceConnection connection) {
         if (connection.getDeviceNo() != null) {
             deviceService.markOffline(connection.getDeviceNo());
+        }
+    }
+
+    private void sendAck(ProtocolFrame frame, DeviceConnection connection) {
+        String reply = parser.build(frame.vendor(), frame.deviceNo(), frame.command());
+        try {
+            connection.send(reply);
+        } catch (IOException e) {
+            log.warn("Failed to send {} reply to device {}", frame.command(), frame.deviceNo(), e);
         }
     }
 

@@ -18,13 +18,21 @@ public class LocationRecord {
     @Column(nullable = false)
     private Long deviceId;
 
+    @Column(precision = 11, scale = 7)
     private BigDecimal latitude;
+
+    @Column(precision = 12, scale = 7)
     private BigDecimal longitude;
     private String latitudeHemisphere;
     private String longitudeHemisphere;
     private Boolean gpsValid;
+    @Column(precision = 8, scale = 3)
     private BigDecimal speed;
+
+    @Column(precision = 8, scale = 3)
     private BigDecimal direction;
+
+    @Column(precision = 8, scale = 3)
     private BigDecimal altitude;
     private Integer satelliteCount;
     private Integer gsmSignal;

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -68,7 +68,7 @@ public class LocationDataService {
             }
             return LocalDate.parse(date, DEVICE_DATE_FORMATTER)
                     .atTime(LocalTime.parse(time, DEVICE_TIME_FORMATTER))
-                    .atZone(ZoneId.systemDefault())
+                    .atZone(ZoneOffset.UTC)
                     .toInstant();
         } catch (DateTimeParseException ex) {
             return null;

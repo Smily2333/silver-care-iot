@@ -10,7 +10,7 @@ import org.mockito.ArgumentCaptor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -40,7 +40,7 @@ class LocationDataServiceTest {
         assertThat(record.getLongitude()).isEqualByComparingTo(new BigDecimal("113.8620167"));
         assertThat(record.getLocatedAt()).isEqualTo(LocalDate.of(2018, 1, 12)
                 .atTime(LocalTime.of(7, 6, 25))
-                .atZone(ZoneId.systemDefault())
+                .atZone(ZoneOffset.UTC)
                 .toInstant());
     }
 }
