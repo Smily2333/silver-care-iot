@@ -1,5 +1,5 @@
 // 替换为实际后端地址
-const BASE_URL = 'http://your-server:8080'
+const BASE_URL = 'http://120.53.225.169:8080'
 
 function request(path, params) {
   return new Promise((resolve, reject) => {
