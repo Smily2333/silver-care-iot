@@ -22,14 +22,14 @@ function request(path, params) {
   })
 }
 
-export function getOverview(deviceNo) {
-  return request(`/api/miniapp/devices/${deviceNo}/overview`)
-}
-
-export function getHealthRecords(deviceNo, size = 20) {
-  return request(`/api/miniapp/devices/${deviceNo}/health-records`, { size })
-}
-
-export function getLocationRecords(deviceNo, size = 20) {
-  return request(`/api/miniapp/devices/${deviceNo}/location-records`, { size })
+module.exports = {
+  getOverview(deviceNo) {
+    return request(`/api/miniapp/devices/${deviceNo}/overview`)
+  },
+  getHealthRecords(deviceNo, size = 20) {
+    return request(`/api/miniapp/devices/${deviceNo}/health-records`, { size })
+  },
+  getLocationRecords(deviceNo, size = 20) {
+    return request(`/api/miniapp/devices/${deviceNo}/location-records`, { size })
+  }
 }
