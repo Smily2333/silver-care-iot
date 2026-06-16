@@ -3,6 +3,11 @@
     <h2 style="margin-bottom:16px">设备列表</h2>
     <el-table :data="devices" v-loading="loading" stripe style="width:100%">
       <el-table-column prop="deviceNo" label="设备编号" width="160" />
+      <el-table-column label="老人姓名" width="120">
+        <template #default="{ row }">
+          {{ row.ownerName || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column prop="model" label="型号" width="140" />
       <el-table-column label="状态" width="100">
         <template #default="{ row }">
