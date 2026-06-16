@@ -12,12 +12,14 @@ import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.constraints.Size;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -77,6 +79,19 @@ public class MiniappDeviceController {
     @PostMapping("/bind")
     public Device bind(@Valid @RequestBody BindRequest req) {
         Device device = deviceRepository.findByDeviceNo(req.deviceNo())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
+        device.setOwnerName(req.ownerName());
+        return deviceRepository.save(device);
+    }
+
+    public record UpdateOwnerNameRequest(
+            @NotBlank @Size(max = 64) String ownerName
+    ) {}
+
+    @PatchMapping("/{deviceNo}/owner-name")
+    public Device updateOwnerName(@PathVariable String deviceNo,
+                                  @Valid @RequestBody UpdateOwnerNameRequest req) {
+        Device device = deviceRepository.findByDeviceNo(deviceNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
         device.setOwnerName(req.ownerName());
         return deviceRepository.save(device);
