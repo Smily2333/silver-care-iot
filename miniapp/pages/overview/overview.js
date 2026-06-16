@@ -1,4 +1,4 @@
-const { getOverview } = require('../../utils/api')
+const { getOverview, updateOwnerName } = require('../../utils/api')
 
 Page({
   data: {
@@ -7,7 +7,11 @@ Page({
     data: { device: {}, latestHealth: null, latestLocation: null },
     lastHeartbeat: '-',
     measuredAt: '-',
-    locatedAt: '-'
+    locatedAt: '-',
+    displayName: '',
+    editing: false,
+    editValue: '',
+    saving: false
   },
 
   onLoad(options) {
@@ -25,8 +29,10 @@ Page({
     this.setData({ loading: true })
     return getOverview(deviceNo)
       .then(res => {
+        const displayName = res.device.ownerName || deviceNo
         this.setData({
           data: res,
+          displayName,
           lastHeartbeat: res.device.lastHeartbeatAt ? this.formatTime(res.device.lastHeartbeatAt) : '-',
           measuredAt: res.latestHealth?.measuredAt ? this.formatTime(res.latestHealth.measuredAt) : '-',
           locatedAt: res.latestLocation?.locatedAt ? this.formatTime(res.latestLocation.locatedAt) : '-'
@@ -37,6 +43,35 @@ Page({
       })
       .finally(() => {
         this.setData({ loading: false })
+      })
+  },
+
+  startEdit() {
+    this.setData({ editing: true, editValue: this.data.data.device.ownerName || '' })
+  },
+
+  onEditInput(e) {
+    this.setData({ editValue: e.detail.value })
+  },
+
+  saveOwnerName() {
+    const name = this.data.editValue.trim()
+    if (!name || this.data.saving) return
+    this.setData({ saving: true })
+    updateOwnerName(this.data.deviceNo, name)
+      .then(updatedDevice => {
+        const newData = { ...this.data.data, device: updatedDevice }
+        this.setData({
+          data: newData,
+          displayName: updatedDevice.ownerName || this.data.deviceNo,
+          editing: false,
+          saving: false
+        })
+        wx.showToast({ title: '保存成功', icon: 'success' })
+      })
+      .catch(err => {
+        this.setData({ saving: false })
+        wx.showToast({ title: err.message, icon: 'none' })
       })
   },
 
