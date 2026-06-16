@@ -4,7 +4,16 @@
   <view class="page-header">
     <view class="header-top">
       <view class="device-name-row">
-        <text class="device-name">{{deviceNo}}</text>
+        <block wx:if="{{!editing}}">
+          <text class="device-name">{{displayName}}</text>
+          <text class="edit-icon" bindtap="startEdit">✏️</text>
+        </block>
+        <block wx:else>
+          <input class="name-input" value="{{editValue}}" bindinput="onEditInput"
+                 placeholder="输入老人姓名" maxlength="64" focus />
+          <text class="{{editValue.trim() && !saving ? 'confirm-btn' : 'confirm-btn confirm-btn-disabled'}}"
+                bindtap="saveOwnerName">✓</text>
+        </block>
         <text class="{{data.device.status === 'ONLINE' ? 'tag-online' : 'tag-offline'}}">
           {{data.device.status === 'ONLINE' ? '在线' : '离线'}}
         </text>
