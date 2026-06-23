@@ -9,8 +9,12 @@ Page({
   },
 
   onLoad() {
-    const recent = wx.getStorageSync('recentDevices') || []
-    this.setData({ recentList: recent })
+    const raw = wx.getStorageSync('recentDevices') || []
+    // 兼容旧格式（纯字符串）自动迁移为对象格式
+    const recent = raw.map(item =>
+      typeof item === 'string' ? { deviceNo: item, ownerName: '' } : item
+    )
+    this.setData({ recentList: this._withDisplay(recent) })
   },
 
   onInput(e) {
@@ -25,8 +29,9 @@ Page({
     }
     this.setData({ loading: true, errorMsg: '' })
     getOverview(no)
-      .then(() => {
-        this._saveRecent(no)
+      .then(res => {
+        const ownerName = (res && res.device && res.device.ownerName) || ''
+        this._saveRecent(no, ownerName)
         wx.navigateTo({ url: `/pages/overview/overview?deviceNo=${no}` })
       })
       .catch(err => {
@@ -43,10 +48,21 @@ Page({
     this.onQuery()
   },
 
-  _saveRecent(no) {
+  _saveRecent(no, ownerName) {
     let list = wx.getStorageSync('recentDevices') || []
-    list = [no, ...list.filter(n => n !== no)].slice(0, 5)
+    // 兼容旧格式
+    list = list.map(item =>
+      typeof item === 'string' ? { deviceNo: item, ownerName: '' } : item
+    )
+    list = [{ deviceNo: no, ownerName: ownerName || '' }, ...list.filter(item => item.deviceNo !== no)].slice(0, 5)
     wx.setStorageSync('recentDevices', list)
-    this.setData({ recentList: list })
+    this.setData({ recentList: this._withDisplay(list) })
+  },
+
+  _withDisplay(list) {
+    return list.map(item => {
+      const displayName = item.ownerName || item.deviceNo
+      return { ...item, displayName, displayInitial: displayName[0] }
+    })
   }
 })

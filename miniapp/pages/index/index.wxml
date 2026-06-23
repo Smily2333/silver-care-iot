@@ -46,16 +46,16 @@
       <view class="recent-list">
         <view
           wx:for="{{recentList}}"
-          wx:key="*this"
+          wx:key="deviceNo"
           class="recent-item"
           bindtap="onRecentTap"
-          data-no="{{item}}"
+          data-no="{{item.deviceNo}}"
         >
           <view class="recent-avatar">
-            <text class="recent-avatar-text">{{item[0]}}</text>
+            <text class="recent-avatar-text">{{item.displayInitial}}</text>
           </view>
           <view class="recent-info">
-            <text class="recent-no">{{item}}</text>
+            <text class="recent-no">{{item.displayName}}</text>
             <text class="recent-hint">点击查看详情</text>
           </view>
           <view class="recent-arrow-wrap">
