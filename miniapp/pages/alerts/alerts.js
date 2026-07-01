@@ -26,7 +26,9 @@ Page({
           ...alert,
           alertedAtStr: this.formatTime(alert.alertedAt),
           locationText: this.formatLocation(alert),
-          hasLocation: alert.latitude != null && alert.longitude != null
+          displayLatitude: alert.mapLatitude ?? alert.latitude,
+          displayLongitude: alert.mapLongitude ?? alert.longitude,
+          hasLocation: (alert.mapLatitude ?? alert.latitude) != null && (alert.mapLongitude ?? alert.longitude) != null
         }))
 
         if (formatted.length > 0) {

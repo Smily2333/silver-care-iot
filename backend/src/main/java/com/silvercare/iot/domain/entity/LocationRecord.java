@@ -1,6 +1,7 @@
 package com.silvercare.iot.domain.entity;
 
 import jakarta.persistence.*;
+import com.silvercare.iot.geo.CoordinateTransform;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -71,6 +72,16 @@ public class LocationRecord {
 
     public BigDecimal getLongitude() {
         return longitude;
+    }
+
+    @Transient
+    public BigDecimal getMapLatitude() {
+        return CoordinateTransform.wgs84ToGcj02Latitude(latitude, longitude);
+    }
+
+    @Transient
+    public BigDecimal getMapLongitude() {
+        return CoordinateTransform.wgs84ToGcj02Longitude(latitude, longitude);
     }
 
     public String getLatitudeHemisphere() {

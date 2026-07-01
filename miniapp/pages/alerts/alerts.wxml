@@ -38,8 +38,8 @@
         <button
           class="location-btn"
           bindtap="goLocation"
-          data-lat="{{item.latitude}}"
-          data-lng="{{item.longitude}}"
+          data-lat="{{item.displayLatitude}}"
+          data-lng="{{item.displayLongitude}}"
           disabled="{{!item.hasLocation}}"
         >
           查看位置

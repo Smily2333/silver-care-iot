@@ -56,12 +56,13 @@ Page({
     if (!records.length) return { markers: [], polyline: [], center: this.data.center }
 
     const latest = records[0]
-    const center = this.data.focusPoint || { lat: Number(latest.latitude), lng: Number(latest.longitude) }
+    const latestPoint = this._mapPoint(latest)
+    const center = this.data.focusPoint || latestPoint
 
     const markers = [{
       id: 1,
-      latitude: Number(latest.latitude),
-      longitude: Number(latest.longitude),
+      latitude: latestPoint.lat,
+      longitude: latestPoint.lng,
       title: '当前位置',
       iconPath: '/images/marker.png',
       width: 32,
@@ -72,10 +73,10 @@ Page({
     }
 
     // records are newest-first; reverse for chronological polyline
-    const points = [...records].reverse().map(r => ({
-      latitude: Number(r.latitude),
-      longitude: Number(r.longitude)
-    }))
+    const points = [...records].reverse()
+      .map(r => this._mapPoint(r))
+      .filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lng))
+      .map(point => ({ latitude: point.lat, longitude: point.lng }))
 
     const polyline = [{
       points,
@@ -96,6 +97,13 @@ Page({
       iconPath: '/images/marker.png',
       width: 36,
       height: 45
+    }
+  },
+
+  _mapPoint(record) {
+    return {
+      lat: Number(record.mapLatitude ?? record.latitude),
+      lng: Number(record.mapLongitude ?? record.longitude)
     }
   },
 

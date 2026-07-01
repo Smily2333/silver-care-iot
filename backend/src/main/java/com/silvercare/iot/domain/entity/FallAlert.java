@@ -1,5 +1,6 @@
 package com.silvercare.iot.domain.entity;
 
+import com.silvercare.iot.geo.CoordinateTransform;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -41,6 +42,16 @@ public class FallAlert {
     public Long getLocationRecordId() { return locationRecordId; }
     public Long getRawPacketId() { return rawPacketId; }
     public Instant getAlertedAt() { return alertedAt; }
+
+    @Transient
+    public BigDecimal getMapLatitude() {
+        return CoordinateTransform.wgs84ToGcj02Latitude(latitude, longitude);
+    }
+
+    @Transient
+    public BigDecimal getMapLongitude() {
+        return CoordinateTransform.wgs84ToGcj02Longitude(latitude, longitude);
+    }
 
     public void setDeviceId(Long deviceId) { this.deviceId = deviceId; }
     public void setLatitude(BigDecimal latitude) { this.latitude = latitude; }
