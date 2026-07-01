@@ -19,6 +19,7 @@ public class AdminSecurityConfig {
     SecurityFilterChain adminSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/api/admin/**")
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/admin/**"))

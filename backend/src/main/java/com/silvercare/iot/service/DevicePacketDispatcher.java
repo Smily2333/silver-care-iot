@@ -1,6 +1,7 @@
 package com.silvercare.iot.service;
 
 import com.silvercare.iot.domain.entity.Device;
+import com.silvercare.iot.domain.entity.LocationRecord;
 import com.silvercare.iot.domain.entity.RawPacketLog;
 import com.silvercare.iot.protocol.ProtocolFrame;
 import com.silvercare.iot.protocol.ProtocolParseException;
@@ -24,17 +25,20 @@ public class DevicePacketDispatcher {
     private final RawPacketLogService rawPacketLogService;
     private final HealthDataService healthDataService;
     private final LocationDataService locationDataService;
+    private final FallAlertService fallAlertService;
 
     public DevicePacketDispatcher(DeviceConnectionRegistry registry,
                                   DeviceService deviceService,
                                   RawPacketLogService rawPacketLogService,
                                   HealthDataService healthDataService,
-                                  LocationDataService locationDataService) {
+                                  LocationDataService locationDataService,
+                                  FallAlertService fallAlertService) {
         this.registry = registry;
         this.deviceService = deviceService;
         this.rawPacketLogService = rawPacketLogService;
         this.healthDataService = healthDataService;
         this.locationDataService = locationDataService;
+        this.fallAlertService = fallAlertService;
     }
 
     public void dispatch(String rawPacket, DeviceConnection connection) {
@@ -58,7 +62,8 @@ public class DevicePacketDispatcher {
                 case "UD", "UD2", "UD_LTE", "UD_WCDMA", "UD_TDSCDMA", "UD_CDMA" ->
                         locationDataService.saveLocation(device, frame, packetLog.getId());
                 case "AL", "AL_LTE", "AL_WCDMA", "AL_TDSCDMA", "AL_CDMA" -> {
-                    locationDataService.saveLocation(device, frame, packetLog.getId());
+                    LocationRecord locationRecord = locationDataService.saveLocation(device, frame, packetLog.getId());
+                    fallAlertService.saveAlert(device, frame, locationRecord, packetLog.getId());
                     sendAck(frame, connection);
                 }
                 case "TKQ" -> sendAck(frame, connection);

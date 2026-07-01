@@ -31,7 +31,7 @@ public class LocationDataService {
         this.repository = repository;
     }
 
-    public void saveLocation(Device device, ProtocolFrame frame, Long rawPacketId) {
+    public LocationRecord saveLocation(Device device, ProtocolFrame frame, Long rawPacketId) {
         String[] args = frame.content().split(",");
         LocationRecord record = new LocationRecord();
         record.setDeviceId(device.getId());
@@ -56,7 +56,7 @@ public class LocationDataService {
         record.setRolloverCount(parseInt(args, 15));
         record.setTerminalStatus(value(args, 16));
         record.setAccuracy(parseLastDecimal(args));
-        repository.save(record);
+        return repository.save(record);
     }
 
     private Instant parseLocatedAt(String[] args) {

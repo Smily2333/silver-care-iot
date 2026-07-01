@@ -3,6 +3,7 @@ package com.silvercare.iot.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -14,6 +15,7 @@ public class MiniappSecurityConfig {
     SecurityFilterChain miniappSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .securityMatcher("/api/miniapp/**")
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/miniapp/**"))
                 .build();
