@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/overview/overview",
     "pages/health/health",
-    "pages/location/location"
+    "pages/location/location",
+    "pages/alerts/alerts"
   ],
   "window": {
     "backgroundTextStyle": "light",

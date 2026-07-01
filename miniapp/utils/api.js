@@ -58,3 +58,29 @@ export function getLocationRecords(deviceNo, size = 20) {
 export function updateOwnerName(deviceNo, ownerName) {
   return requestPatch(`/api/miniapp/devices/${deviceNo}/owner-name`, { ownerName })
 }
+
+export function getFallAlerts(deviceNo, size = 20) {
+  return request(`/api/miniapp/devices/${deviceNo}/fall-alerts`, { size })
+}
+
+export function getLatestFallAlert(deviceNo) {
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: BASE_URL + `/api/miniapp/devices/${deviceNo}/fall-alerts/latest`,
+      method: 'GET',
+      header: { 'Content-Type': 'application/json' },
+      success: res => {
+        if (res.statusCode === 200) {
+          resolve(res.data)
+        } else if (res.statusCode === 204) {
+          resolve(null)
+        } else if (res.statusCode === 404) {
+          reject(new Error('设备不存在'))
+        } else {
+          reject(new Error('请求失败：' + res.statusCode))
+        }
+      },
+      fail: err => reject(new Error(err.errMsg || '网络错误'))
+    })
+  })
+}
