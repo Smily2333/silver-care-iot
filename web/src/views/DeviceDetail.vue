@@ -8,7 +8,7 @@
       <el-tab-pane label="基本信息" name="info">
         <el-descriptions :column="2" border style="margin-top:12px">
           <el-descriptions-item label="设备编号">{{ device?.deviceNo }}</el-descriptions-item>
-          <el-descriptions-item label="老人姓名">{{ device?.ownerName || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="姓名">{{ device?.ownerName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="型号">{{ device?.model ?? '-' }}</el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag :type="device?.status === 'ONLINE' ? 'success' : 'info'">

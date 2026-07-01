@@ -3,7 +3,7 @@
     <h2 style="margin-bottom:16px">设备列表</h2>
     <el-table :data="devices" v-loading="loading" stripe style="width:100%">
       <el-table-column prop="deviceNo" label="设备编号" width="160" />
-      <el-table-column label="老人姓名" width="120">
+      <el-table-column label="姓名" width="120">
         <template #default="{ row }">
           {{ row.ownerName || '-' }}
         </template>
