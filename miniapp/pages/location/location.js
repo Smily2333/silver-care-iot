@@ -4,6 +4,7 @@ Page({
   data: {
     deviceNo: '',
     loading: true,
+    focusPoint: null,
     records: [],
     center: { lat: 39.984120, lng: 116.307484 },
     markers: [],
@@ -12,7 +13,10 @@ Page({
 
   onLoad(options) {
     const deviceNo = options.deviceNo || ''
-    this.setData({ deviceNo })
+    const lat = Number(options.lat)
+    const lng = Number(options.lng)
+    const focusPoint = Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null
+    this.setData({ deviceNo, focusPoint })
     wx.setNavigationBarTitle({ title: '位置轨迹' })
     this.load(deviceNo)
   },
@@ -42,10 +46,17 @@ Page({
   },
 
   _buildMapData(records) {
+    if (!records.length && this.data.focusPoint) {
+      return {
+        center: this.data.focusPoint,
+        markers: [this._focusMarker(this.data.focusPoint)],
+        polyline: []
+      }
+    }
     if (!records.length) return { markers: [], polyline: [], center: this.data.center }
 
     const latest = records[0]
-    const center = { lat: Number(latest.latitude), lng: Number(latest.longitude) }
+    const center = this.data.focusPoint || { lat: Number(latest.latitude), lng: Number(latest.longitude) }
 
     const markers = [{
       id: 1,
@@ -56,6 +67,9 @@ Page({
       width: 32,
       height: 40
     }]
+    if (this.data.focusPoint) {
+      markers.unshift(this._focusMarker(this.data.focusPoint))
+    }
 
     // records are newest-first; reverse for chronological polyline
     const points = [...records].reverse().map(r => ({
@@ -71,6 +85,18 @@ Page({
     }]
 
     return { center, markers, polyline }
+  },
+
+  _focusMarker(point) {
+    return {
+      id: 99,
+      latitude: point.lat,
+      longitude: point.lng,
+      title: '跌倒警报位置',
+      iconPath: '/images/marker.png',
+      width: 36,
+      height: 45
+    }
   },
 
   formatTime(isoStr) {

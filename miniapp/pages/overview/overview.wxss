@@ -118,6 +118,54 @@ page {
   padding: 28rpx 0 60rpx;
 }
 
+.alert-banner {
+  margin: 0 24rpx 24rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 20rpx;
+  background: linear-gradient(135deg, #d63f32 0%, #f06a3d 100%);
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(214, 63, 50, 0.22);
+}
+
+.alert-banner-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.22);
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alert-banner-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.alert-banner-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #fff;
+}
+
+.alert-banner-time {
+  font-size: 23rpx;
+  color: rgba(255,255,255,0.75);
+}
+
+.alert-banner-arrow {
+  font-size: 42rpx;
+  color: rgba(255,255,255,0.82);
+}
+
 /* 健康卡片 */
 .health-card {
   margin-bottom: 20rpx;
@@ -268,17 +316,17 @@ page {
 
 /* 导航格子 */
 .nav-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20rpx;
   padding: 0 24rpx;
   margin-top: 4rpx;
 }
 
 .nav-card {
-  flex: 1;
   background: #fff;
   border-radius: 20rpx;
-  padding: 32rpx 24rpx;
+  padding: 30rpx 16rpx;
   box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.06);
   display: flex;
   flex-direction: column;
@@ -303,6 +351,12 @@ page {
 
 .location-nav-icon {
   background: rgba(52, 199, 89, 0.1);
+}
+
+.alert-nav-icon {
+  background: rgba(214, 63, 50, 0.1);
+  color: #d63f32;
+  font-weight: 800;
 }
 
 .nav-card-label {

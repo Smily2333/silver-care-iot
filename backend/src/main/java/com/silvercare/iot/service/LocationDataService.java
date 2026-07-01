@@ -42,9 +42,9 @@ public class LocationDataService {
             record.setLocatedAt(locatedAt);
         }
         record.setGpsValid("A".equalsIgnoreCase(value(args, 3)));
-        record.setLatitude(parseDecimal(args, 4));
+        record.setLatitude(parseCoordinate(args, 4, 5));
         record.setLatitudeHemisphere(value(args, 5));
-        record.setLongitude(parseDecimal(args, 6));
+        record.setLongitude(parseCoordinate(args, 6, 7));
         record.setLongitudeHemisphere(value(args, 7));
         record.setSpeed(parseDecimal(args, 8));
         record.setDirection(parseDecimal(args, 9));
@@ -95,6 +95,18 @@ public class LocationDataService {
         } catch (NumberFormatException ex) {
             return null;
         }
+    }
+
+    private BigDecimal parseCoordinate(String[] args, int valueIndex, int hemisphereIndex) {
+        BigDecimal coordinate = parseDecimal(args, valueIndex);
+        String hemisphere = value(args, hemisphereIndex);
+        if (coordinate == null || hemisphere == null) {
+            return coordinate;
+        }
+        return switch (hemisphere.toUpperCase()) {
+            case "S", "W" -> coordinate.negate();
+            default -> coordinate;
+        };
     }
 
     private BigDecimal parseLastDecimal(String[] args) {

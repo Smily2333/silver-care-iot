@@ -44,4 +44,24 @@ class LocationDataServiceTest {
                 .atZone(ZoneOffset.UTC)
                 .toInstant());
     }
+
+    @Test
+    void savesSouthAndWestCoordinatesAsNegative() {
+        LocationRecordRepository repository = mock(LocationRecordRepository.class);
+        LocationDataService service = new LocationDataService(repository);
+        ProtocolParser parser = new ProtocolParser();
+        Device device = new Device();
+        device.setDeviceNo("2016001000");
+
+        when(repository.save(any(LocationRecord.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        LocationRecord result = service.saveLocation(
+                device,
+                parser.parse("[3G*2016001000*0055*UD,120118,070625,A,22.570720,S,113.8620167,W,0.00,188.6,0.0,9,100,51,14188,0,00000010]"),
+                1L
+        );
+
+        assertThat(result.getLatitude()).isEqualByComparingTo(new BigDecimal("-22.570720"));
+        assertThat(result.getLongitude()).isEqualByComparingTo(new BigDecimal("-113.8620167"));
+    }
 }

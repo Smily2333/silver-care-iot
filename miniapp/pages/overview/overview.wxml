@@ -44,6 +44,15 @@
 
   <!-- 内容区 -->
   <view class="content-area">
+    <view wx:if="{{hasNewAlert}}" class="alert-banner" bindtap="goAlerts">
+      <view class="alert-banner-icon">!</view>
+      <view class="alert-banner-main">
+        <text class="alert-banner-title">检测到跌倒警报</text>
+        <text class="alert-banner-time">{{latestAlertTime}}</text>
+      </view>
+      <text class="alert-banner-arrow">›</text>
+    </view>
+
     <!-- 健康指标卡片 -->
     <view wx:if="{{data.latestHealth}}" class="card health-card">
       <view class="card-header-row">
@@ -116,6 +125,13 @@
         </view>
         <text class="nav-card-label">位置轨迹</text>
         <text class="nav-card-sub">查看行动轨迹</text>
+      </view>
+      <view class="nav-card" bindtap="goAlerts">
+        <view class="nav-card-icon alert-nav-icon">
+          <text>!</text>
+        </view>
+        <text class="nav-card-label">跌倒警报</text>
+        <text class="nav-card-sub">查看安全事件</text>
       </view>
     </view>
   </view>

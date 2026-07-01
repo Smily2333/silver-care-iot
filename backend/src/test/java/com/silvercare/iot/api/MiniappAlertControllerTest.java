@@ -44,6 +44,25 @@ class MiniappAlertControllerTest {
     }
 
     @Test
+    void list_clampsInvalidSizeToAtLeastOne() {
+        Device device = new Device();
+        device.setDeviceNo("DEV001");
+
+        FallAlert first = new FallAlert();
+        first.setAlertedAt(Instant.now());
+        FallAlert second = new FallAlert();
+        second.setAlertedAt(Instant.now());
+
+        when(deviceRepository.findByDeviceNo("DEV001")).thenReturn(Optional.of(device));
+        when(fallAlertRepository.findTop20ByDeviceIdOrderByAlertedAtDesc(device.getId()))
+                .thenReturn(List.of(first, second));
+
+        List<FallAlert> result = controller().list("DEV001", -5);
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
     void list_deviceNotFound_throws404() {
         when(deviceRepository.findByDeviceNo("NOTEXIST")).thenReturn(Optional.empty());
 

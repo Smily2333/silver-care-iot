@@ -29,7 +29,7 @@ public class MiniappAlertController {
                                 @RequestParam(defaultValue = "20") int size) {
         Device device = deviceRepository.findByDeviceNo(deviceNo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
-        int clamped = Math.min(size, 20);
+        int clamped = Math.max(1, Math.min(size, 20));
         return fallAlertRepository.findTop20ByDeviceIdOrderByAlertedAtDesc(device.getId())
                 .stream().limit(clamped).toList();
     }

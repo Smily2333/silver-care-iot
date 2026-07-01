@@ -38,8 +38,8 @@ public class FallAlertService {
         alert.setDeviceId(device.getId());
         alert.setRawPacketId(rawPacketId);
         alert.setGpsValid("A".equalsIgnoreCase(value(args, 3)));
-        alert.setLatitude(parseDecimal(args, 4));
-        alert.setLongitude(parseDecimal(args, 6));
+        alert.setLatitude(parseCoordinate(args, 4, 5));
+        alert.setLongitude(parseCoordinate(args, 6, 7));
         if (locationRecord != null) {
             alert.setLocationRecordId(locationRecord.getId());
         }
@@ -73,5 +73,17 @@ public class FallAlertService {
         } catch (NumberFormatException ex) {
             return null;
         }
+    }
+
+    private BigDecimal parseCoordinate(String[] args, int valueIndex, int hemisphereIndex) {
+        BigDecimal coordinate = parseDecimal(args, valueIndex);
+        String hemisphere = value(args, hemisphereIndex);
+        if (coordinate == null || hemisphere == null) {
+            return coordinate;
+        }
+        return switch (hemisphere.toUpperCase()) {
+            case "S", "W" -> coordinate.negate();
+            default -> coordinate;
+        };
     }
 }

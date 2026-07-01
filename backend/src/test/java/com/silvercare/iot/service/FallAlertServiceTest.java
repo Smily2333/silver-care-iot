@@ -67,4 +67,22 @@ class FallAlertServiceTest {
         verify(repository).save(captor.capture());
         assertThat(captor.getValue().getGpsValid()).isFalse();
     }
+
+    @Test
+    void saveAlert_appliesSouthAndWestHemisphereSigns() {
+        Device device = new Device();
+        device.setDeviceNo("2016001000");
+
+        service.saveAlert(
+                device,
+                parser.parse("[3G*2016001000*0055*AL,120118,070625,A,22.570720,S,113.8620167,W,0.00,188.6,0.0,9,100,51,14188,0,00000010]"),
+                null,
+                1L
+        );
+
+        ArgumentCaptor<FallAlert> captor = ArgumentCaptor.forClass(FallAlert.class);
+        verify(repository).save(captor.capture());
+        assertThat(captor.getValue().getLatitude()).isEqualByComparingTo(new BigDecimal("-22.570720"));
+        assertThat(captor.getValue().getLongitude()).isEqualByComparingTo(new BigDecimal("-113.8620167"));
+    }
 }

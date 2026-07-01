@@ -1,4 +1,4 @@
-const { getOverview, updateOwnerName } = require('../../utils/api')
+const { getOverview, updateOwnerName, getLatestFallAlert } = require('../../utils/api')
 
 Page({
   data: {
@@ -11,7 +11,10 @@ Page({
     displayName: '',
     editing: false,
     editValue: '',
-    saving: false
+    saving: false,
+    hasNewAlert: false,
+    latestAlert: null,
+    latestAlertTime: '-'
   },
 
   onLoad(options) {
@@ -21,8 +24,16 @@ Page({
     this.load(deviceNo)
   },
 
+  onShow() {
+    if (this.data.deviceNo) {
+      this.checkLatestAlert(this.data.deviceNo)
+    }
+  },
+
   onPullDownRefresh() {
-    this.load(this.data.deviceNo).finally(() => wx.stopPullDownRefresh())
+    this.load(this.data.deviceNo)
+      .then(() => this.checkLatestAlert(this.data.deviceNo))
+      .finally(() => wx.stopPullDownRefresh())
   },
 
   load(deviceNo) {
@@ -81,6 +92,50 @@ Page({
 
   goLocation() {
     wx.navigateTo({ url: `/pages/location/location?deviceNo=${this.data.deviceNo}` })
+  },
+
+  goAlerts() {
+    const alert = this.data.latestAlert
+    if (alert && alert.alertedAt) {
+      wx.setStorageSync('lastSeenAlertAt_' + this.data.deviceNo, alert.alertedAt)
+    }
+    this.setData({ hasNewAlert: false })
+    wx.navigateTo({ url: `/pages/alerts/alerts?deviceNo=${this.data.deviceNo}` })
+  },
+
+  checkLatestAlert(deviceNo) {
+    return getLatestFallAlert(deviceNo)
+      .then(alert => {
+        if (!alert || !alert.alertedAt) {
+          this.setData({ hasNewAlert: false, latestAlert: null, latestAlertTime: '-' })
+          return
+        }
+
+        const lastSeen = wx.getStorageSync('lastSeenAlertAt_' + deviceNo)
+        const isNew = alert.alertedAt !== lastSeen
+        this.setData({
+          hasNewAlert: isNew,
+          latestAlert: alert,
+          latestAlertTime: this.formatTime(alert.alertedAt)
+        })
+
+        if (isNew) {
+          wx.showModal({
+            title: '跌倒警报',
+            content: `检测到疑似跌倒事件\n时间：${this.formatTime(alert.alertedAt)}`,
+            confirmText: '查看',
+            cancelText: '稍后',
+            success: res => {
+              if (res.confirm) {
+                this.goAlerts()
+              }
+            }
+          })
+        }
+      })
+      .catch(() => {
+        // 告警轮询不阻塞概览页主数据展示
+      })
   },
 
   formatTime(isoStr) {

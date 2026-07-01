@@ -1,0 +1,50 @@
+<!--跌倒警报列表页-->
+<view class="page">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <text class="loading-icon">⏳</text>
+    <text>加载中...</text>
+  </view>
+
+  <view wx:else>
+    <view class="page-header">
+      <text class="header-title">跌倒警报</text>
+      <text class="header-sub">共 {{alerts.length}} 条记录</text>
+    </view>
+
+    <view class="content-area">
+      <view class="card empty-card" wx:if="{{alerts.length === 0}}">
+        <text class="empty-icon">✓</text>
+        <text class="empty-text">暂无跌倒警报记录</text>
+      </view>
+
+      <view
+        wx:for="{{alerts}}"
+        wx:key="id"
+        class="card alert-card"
+      >
+        <view class="alert-card-head">
+          <view class="alert-badge">跌倒警报</view>
+          <text class="alert-time">{{item.alertedAtStr}}</text>
+        </view>
+
+        <view class="alert-body">
+          <text class="alert-title">检测到疑似跌倒事件</text>
+          <text class="alert-location">{{item.locationText}}</text>
+          <text class="{{item.gpsValid ? 'gps-valid' : 'gps-invalid'}}">
+            {{item.gpsValid ? 'GPS有效' : 'GPS无效或未上报'}}
+          </text>
+        </view>
+
+        <button
+          class="location-btn"
+          bindtap="goLocation"
+          data-lat="{{item.latitude}}"
+          data-lng="{{item.longitude}}"
+          disabled="{{!item.hasLocation}}"
+        >
+          查看位置
+        </button>
+      </view>
+    </view>
+  </view>
+</view>
