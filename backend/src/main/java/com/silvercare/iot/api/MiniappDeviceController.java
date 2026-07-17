@@ -7,10 +7,12 @@ import com.silvercare.iot.domain.entity.LocationRecord;
 import com.silvercare.iot.repository.DeviceRepository;
 import com.silvercare.iot.repository.HealthRecordRepository;
 import com.silvercare.iot.repository.LocationRecordRepository;
+import com.silvercare.iot.security.MiniappPrincipal;
+import com.silvercare.iot.service.DeviceAccessService;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.constraints.Size;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -31,19 +32,22 @@ public class MiniappDeviceController {
     private final DeviceRepository deviceRepository;
     private final HealthRecordRepository healthRecordRepository;
     private final LocationRecordRepository locationRecordRepository;
+    private final DeviceAccessService deviceAccessService;
 
     public MiniappDeviceController(DeviceRepository deviceRepository,
                                    HealthRecordRepository healthRecordRepository,
-                                   LocationRecordRepository locationRecordRepository) {
+                                   LocationRecordRepository locationRecordRepository,
+                                   DeviceAccessService deviceAccessService) {
         this.deviceRepository = deviceRepository;
         this.healthRecordRepository = healthRecordRepository;
         this.locationRecordRepository = locationRecordRepository;
+        this.deviceAccessService = deviceAccessService;
     }
 
     @GetMapping("/{deviceNo}/overview")
-    public MiniappOverviewResponse overview(@PathVariable String deviceNo) {
-        Device device = deviceRepository.findByDeviceNo(deviceNo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
+    public MiniappOverviewResponse overview(@AuthenticationPrincipal MiniappPrincipal principal,
+                                            @PathVariable String deviceNo) {
+        Device device = deviceAccessService.requireBoundDevice(principal.userId(), deviceNo);
         HealthRecord latestHealth = healthRecordRepository
                 .findFirstByDeviceIdOrderByMeasuredAtDesc(device.getId()).orElse(null);
         LocationRecord latestLocation = locationRecordRepository
@@ -52,36 +56,34 @@ public class MiniappDeviceController {
     }
 
     @GetMapping("/{deviceNo}/health-records")
-    public List<HealthRecord> healthRecords(@PathVariable String deviceNo,
+    public List<HealthRecord> healthRecords(@AuthenticationPrincipal MiniappPrincipal principal,
+                                            @PathVariable String deviceNo,
                                             @RequestParam(defaultValue = "20") int size) {
-        int clampedSize = Math.min(size, 100);
-        Device device = deviceRepository.findByDeviceNo(deviceNo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
+        int clampedSize = Math.max(1, Math.min(size, 100));
+        Device device = deviceAccessService.requireBoundDevice(principal.userId(), deviceNo);
         return healthRecordRepository.findTop100ByDeviceIdOrderByMeasuredAtDesc(device.getId())
                 .stream().limit(clampedSize).toList();
     }
 
     @GetMapping("/{deviceNo}/location-records")
-    public List<LocationRecord> locationRecords(@PathVariable String deviceNo,
-                                                @RequestParam(defaultValue = "20") int size) {
-        int clampedSize = Math.min(size, 100);
-        Device device = deviceRepository.findByDeviceNo(deviceNo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
+    public List<LocationRecord> locationRecords(@AuthenticationPrincipal MiniappPrincipal principal,
+                                                @PathVariable String deviceNo,
+                                                 @RequestParam(defaultValue = "20") int size) {
+        int clampedSize = Math.max(1, Math.min(size, 100));
+        Device device = deviceAccessService.requireBoundDevice(principal.userId(), deviceNo);
         return locationRecordRepository.findByDeviceIdAndGpsValidTrueOrderByLocatedAtDesc(
                 device.getId(), PageRequest.of(0, clampedSize));
     }
 
     public record BindRequest(
-            @NotBlank String deviceNo,
-            @NotBlank String ownerName
+            @NotBlank @Size(max = 64) String deviceNo,
+            @NotBlank @Size(max = 64) String ownerName
     ) {}
 
     @PostMapping("/bind")
-    public Device bind(@Valid @RequestBody BindRequest req) {
-        Device device = deviceRepository.findByDeviceNo(req.deviceNo())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
-        device.setOwnerName(req.ownerName());
-        return deviceRepository.save(device);
+    public Device bind(@AuthenticationPrincipal MiniappPrincipal principal,
+                       @Valid @RequestBody BindRequest req) {
+        return deviceAccessService.bind(principal.userId(), req.deviceNo(), req.ownerName());
     }
 
     public record UpdateOwnerNameRequest(
@@ -89,10 +91,10 @@ public class MiniappDeviceController {
     ) {}
 
     @PatchMapping("/{deviceNo}/owner-name")
-    public Device updateOwnerName(@PathVariable String deviceNo,
+    public Device updateOwnerName(@AuthenticationPrincipal MiniappPrincipal principal,
+                                  @PathVariable String deviceNo,
                                   @Valid @RequestBody UpdateOwnerNameRequest req) {
-        Device device = deviceRepository.findByDeviceNo(deviceNo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
+        Device device = deviceAccessService.requireBoundDevice(principal.userId(), deviceNo);
         device.setOwnerName(req.ownerName());
         return deviceRepository.save(device);
     }

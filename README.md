@@ -37,21 +37,21 @@ cd backend
 mvn spring-boot:run
 ```
 
-Admin APIs under `/api/admin/**` use HTTP Basic authentication.
-For local development the default credentials are:
-
-```text
-admin / change-me
-```
-
-Override them before deployment:
+Admin APIs under `/api/admin/**` use HTTP Basic authentication. The Web client asks for the credentials
+at login time and keeps them only in the current browser session. Configure credentials before starting:
 
 ```bash
 SILVER_CARE_ADMIN_USERNAME=...
 SILVER_CARE_ADMIN_PASSWORD=...
+SILVER_CARE_DB_PASSWORD=...
+WECHAT_MINIAPP_APP_SECRET=...
 ```
+
+See `docs/deployment.md` and `.env.example` for the complete deployment checklist. The mini program uses
+WeChat `wx.login`, server-side sessions, and per-user device bindings; its AppSecret belongs only on the
+backend server.
 
 Default ports:
 
 - HTTP API: `8080`
-- Device TCP gateway: `9000`
+- Device TCP gateway: `9001`

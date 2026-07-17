@@ -5,14 +5,14 @@ spring:
   application:
     name: silver-care-iot-backend
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/silver_care?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    url: ${SILVER_CARE_DB_URL:jdbc:mysql://127.0.0.1:3306/silver_care?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: silvercare
-    password: silvercare123
+    username: ${SILVER_CARE_DB_USERNAME:silvercare}
+    password: ${SILVER_CARE_DB_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: ${SILVER_CARE_SHOW_SQL:false}
     open-in-view: false
     properties:
       hibernate:
@@ -21,7 +21,7 @@ spring:
 silver-care:
   admin:
     username: ${SILVER_CARE_ADMIN_USERNAME:admin}
-    password: ${SILVER_CARE_ADMIN_PASSWORD:change-me}
+    password: ${SILVER_CARE_ADMIN_PASSWORD:}
   gateway:
     enabled: true
     port: 9001
@@ -30,3 +30,7 @@ silver-care:
     client-queue-capacity: 200
     accept-backlog: 128
     max-frame-length-bytes: 8192
+  wechat-miniapp:
+    app-id: ${WECHAT_MINIAPP_APPID:wx0d83544c7be6bc73}
+    app-secret: ${WECHAT_MINIAPP_APP_SECRET:}
+    session-ttl-days: ${WECHAT_MINIAPP_SESSION_TTL_DAYS:30}

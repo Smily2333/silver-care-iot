@@ -28,8 +28,8 @@ const validRecords = computed(() =>
   props.records
     .map(record => ({
       ...record,
-      displayLatitude: Number(record.mapLatitude ?? record.latitude),
-      displayLongitude: Number(record.mapLongitude ?? record.longitude)
+      displayLatitude: Number(record.latitude),
+      displayLongitude: Number(record.longitude)
     }))
     .filter(record => Number.isFinite(record.displayLatitude) && Number.isFinite(record.displayLongitude))
 )

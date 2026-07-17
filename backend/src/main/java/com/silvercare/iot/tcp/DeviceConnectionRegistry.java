@@ -23,10 +23,8 @@ public class DeviceConnectionRegistry {
         return Optional.ofNullable(connections.get(deviceNo));
     }
 
-    public void remove(DeviceConnection connection) {
+    public boolean remove(DeviceConnection connection) {
         String deviceNo = connection.getDeviceNo();
-        if (deviceNo != null) {
-            connections.remove(deviceNo, connection);
-        }
+        return deviceNo != null && connections.remove(deviceNo, connection);
     }
 }

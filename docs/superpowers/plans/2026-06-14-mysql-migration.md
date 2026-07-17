@@ -34,7 +34,7 @@ docker exec -it kangyang-mysql mysql -uroot
 
 ```sql
 CREATE DATABASE silver_care CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'silvercare'@'%' IDENTIFIED BY 'silvercare123';
+CREATE USER 'silvercare'@'%' IDENTIFIED BY '<secure-password>';
 GRANT ALL PRIVILEGES ON silver_care.* TO 'silvercare'@'%';
 FLUSH PRIVILEGES;
 ```
@@ -76,7 +76,7 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/silver_care?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: silvercare
-    password: silvercare123
+    password: ${SILVER_CARE_DB_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: update
@@ -90,7 +90,7 @@ spring:
 silver-care:
   admin:
     username: ${SILVER_CARE_ADMIN_USERNAME:admin}
-    password: ${SILVER_CARE_ADMIN_PASSWORD:change-me}
+    password: ${SILVER_CARE_ADMIN_PASSWORD:}
   gateway:
     enabled: true
     port: 9001

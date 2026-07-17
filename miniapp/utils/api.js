@@ -1,86 +1,119 @@
-// 替换为实际后端地址
-const BASE_URL = 'http://120.53.225.169:8080'
+const { getApiBaseUrl } = require('../config')
+const ACCESS_TOKEN_KEY = 'miniappAccessToken'
 
-function request(path, params) {
+let loginPromise = null
+
+class ApiError extends Error {
+  constructor(message, statusCode) {
+    super(message)
+    this.statusCode = statusCode
+  }
+}
+
+function wxRequest(path, method, data, accessToken) {
   return new Promise((resolve, reject) => {
+    const header = { 'Content-Type': 'application/json' }
+    if (accessToken) {
+      header.Authorization = `Bearer ${accessToken}`
+    }
     wx.request({
-      url: BASE_URL + path,
-      data: params || {},
-      method: 'GET',
-      header: { 'Content-Type': 'application/json' },
-      success: res => {
-        if (res.statusCode === 200) {
-          resolve(res.data)
-        } else if (res.statusCode === 404) {
-          reject(new Error('设备不存在'))
-        } else {
-          reject(new Error('请求失败：' + res.statusCode))
-        }
-      },
+      url: getApiBaseUrl() + path,
+      data: data || {},
+      method,
+      header,
+      success: resolve,
       fail: err => reject(new Error(err.errMsg || '网络错误'))
     })
   })
 }
 
-function requestPatch(path, data) {
+function loginCode() {
   return new Promise((resolve, reject) => {
-    wx.request({
-      url: BASE_URL + path,
-      data: data || {},
-      method: 'PATCH',
-      header: { 'Content-Type': 'application/json' },
-      success: res => {
-        if (res.statusCode === 200) {
-          resolve(res.data)
-        } else if (res.statusCode === 404) {
-          reject(new Error('设备不存在'))
-        } else {
-          reject(new Error('请求失败：' + res.statusCode))
-        }
-      },
-      fail: err => reject(new Error(err.errMsg || '网络错误'))
+    wx.login({
+      success: result => result.code ? resolve(result.code) : reject(new Error('微信登录失败')),
+      fail: err => reject(new Error(err.errMsg || '微信登录失败'))
     })
   })
+}
+
+export function loginMiniapp(force = false) {
+  if (force) {
+    wx.removeStorageSync(ACCESS_TOKEN_KEY)
+  }
+  const existingToken = wx.getStorageSync(ACCESS_TOKEN_KEY)
+  if (existingToken) return Promise.resolve(existingToken)
+  if (loginPromise) return loginPromise
+
+  loginPromise = loginCode()
+    .then(code => wxRequest('/api/miniapp/auth/login', 'POST', { code }))
+    .then(res => {
+      if (res.statusCode !== 200 || !res.data?.accessToken) {
+        throw responseError(res)
+      }
+      wx.setStorageSync(ACCESS_TOKEN_KEY, res.data.accessToken)
+      return res.data.accessToken
+    })
+    .finally(() => {
+      loginPromise = null
+    })
+  return loginPromise
+}
+
+function request(path, method = 'GET', data = {}, retried = false) {
+  return loginMiniapp()
+    .then(accessToken => wxRequest(path, method, data, accessToken))
+    .then(res => {
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        return res.statusCode === 204 ? null : res.data
+      }
+      if (res.statusCode === 401 && !retried) {
+        return loginMiniapp(true).then(() => request(path, method, data, true))
+      }
+      throw responseError(res)
+    })
+}
+
+function responseError(res) {
+  const messages = {
+    400: '提交的数据不正确',
+    401: '微信登录已失效，请重试',
+    403: '设备尚未绑定到当前微信',
+    404: '设备不存在',
+    409: '设备已被其他账号绑定',
+    502: '微信登录服务暂时不可用',
+    503: '服务器尚未配置微信登录'
+  }
+  return new ApiError(messages[res.statusCode] || `请求失败：${res.statusCode}`, res.statusCode)
+}
+
+function devicePath(deviceNo, suffix) {
+  return `/api/miniapp/devices/${encodeURIComponent(deviceNo)}${suffix}`
+}
+
+export function bindDevice(deviceNo, ownerName) {
+  return request('/api/miniapp/devices/bind', 'POST', { deviceNo, ownerName })
 }
 
 export function getOverview(deviceNo) {
-  return request(`/api/miniapp/devices/${deviceNo}/overview`)
+  return request(devicePath(deviceNo, '/overview'))
 }
 
 export function getHealthRecords(deviceNo, size = 20) {
-  return request(`/api/miniapp/devices/${deviceNo}/health-records`, { size })
+  return request(devicePath(deviceNo, '/health-records'), 'GET', { size })
 }
 
 export function getLocationRecords(deviceNo, size = 20) {
-  return request(`/api/miniapp/devices/${deviceNo}/location-records`, { size })
+  return request(devicePath(deviceNo, '/location-records'), 'GET', { size })
 }
 
 export function updateOwnerName(deviceNo, ownerName) {
-  return requestPatch(`/api/miniapp/devices/${deviceNo}/owner-name`, { ownerName })
+  return request(devicePath(deviceNo, '/owner-name'), 'PATCH', { ownerName })
 }
 
 export function getFallAlerts(deviceNo, size = 20) {
-  return request(`/api/miniapp/devices/${deviceNo}/fall-alerts`, { size })
+  return request(devicePath(deviceNo, '/fall-alerts'), 'GET', { size })
 }
 
 export function getLatestFallAlert(deviceNo) {
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: BASE_URL + `/api/miniapp/devices/${deviceNo}/fall-alerts/latest`,
-      method: 'GET',
-      header: { 'Content-Type': 'application/json' },
-      success: res => {
-        if (res.statusCode === 200) {
-          resolve(res.data)
-        } else if (res.statusCode === 204) {
-          resolve(null)
-        } else if (res.statusCode === 404) {
-          reject(new Error('设备不存在'))
-        } else {
-          reject(new Error('请求失败：' + res.statusCode))
-        }
-      },
-      fail: err => reject(new Error(err.errMsg || '网络错误'))
-    })
-  })
+  return request(devicePath(deviceNo, '/fall-alerts/latest'))
 }

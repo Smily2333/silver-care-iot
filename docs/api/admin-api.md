@@ -6,13 +6,7 @@ Base URL: `http://localhost:8080`
 
 所有 `/api/admin/**` 接口使用 **HTTP Basic Authentication**。
 
-默认凭证：
-
-```text
-admin / change-me
-```
-
-可通过环境变量覆盖：
+服务启动前必须通过环境变量配置凭证：
 
 ```bash
 SILVER_CARE_ADMIN_USERNAME=...
@@ -113,11 +107,11 @@ SILVER_CARE_ADMIN_PASSWORD=...
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | deviceNo | String | 设备编号 |
-| direction | Enum | INBOUND / OUTBOUND |
+| direction | Enum | UPLINK / DOWNLINK |
 | command | String | 协议命令 (LK/UD/UD2/AL 等) |
 | lenHex | String | 长度校验位(hex) |
 | content | String | 报文内容 |
 | rawPacket | String | 原始完整报文 |
-| parseStatus | Enum | OK / ERROR |
+| parseStatus | Enum | SUCCESS / FAILED |
 | errorMessage | String | 解析错误信息 |
 | receivedAt | Instant | 接收时间 |

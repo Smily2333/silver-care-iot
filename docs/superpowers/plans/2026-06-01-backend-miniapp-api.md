@@ -1,5 +1,8 @@
 # Backend MiniApp API Implementation Plan
 
+> **Superseded:** Mini program APIs now require WeChat login and a user-device binding. See
+> `docs/api/miniapp-auth.md`; do not restore the unauthenticated configuration described below.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add `/api/miniapp/**` REST endpoints so the WeChat miniapp can query device overview, health records, and location records by deviceNo without authentication.

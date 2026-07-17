@@ -1,4 +1,4 @@
-const { getOverview } = require('../../utils/api')
+const { bindDevice, getOverview } = require('../../utils/api')
 
 Page({
   data: {
@@ -32,14 +32,46 @@ Page({
       .then(res => {
         const ownerName = (res && res.device && res.device.ownerName) || ''
         this._saveRecent(no, ownerName)
-        wx.navigateTo({ url: `/pages/overview/overview?deviceNo=${no}` })
+        wx.navigateTo({ url: `/pages/overview/overview?deviceNo=${encodeURIComponent(no)}` })
       })
       .catch(err => {
+        if (err.statusCode === 403) {
+          return this._confirmBinding(no)
+        }
         this.setData({ errorMsg: err.message })
       })
       .finally(() => {
         this.setData({ loading: false })
       })
+  },
+
+  _confirmBinding(no) {
+    return new Promise(resolve => {
+      wx.showModal({
+        title: '绑定设备',
+        content: '请输入佩戴人的姓名，确认后该设备将绑定到当前微信。',
+        editable: true,
+        placeholderText: '例如：张奶奶',
+        confirmText: '确认绑定',
+        success: resolve,
+        fail: () => resolve({ confirm: false })
+      })
+    }).then(result => {
+      if (!result.confirm) return
+      const ownerName = (result.content || '').trim()
+      if (!ownerName) {
+        this.setData({ errorMsg: '请输入佩戴人姓名' })
+        return
+      }
+      return bindDevice(no, ownerName)
+        .then(device => {
+          this._saveRecent(no, device.ownerName || ownerName)
+          wx.navigateTo({ url: `/pages/overview/overview?deviceNo=${encodeURIComponent(no)}` })
+        })
+        .catch(err => {
+          this.setData({ errorMsg: err.message })
+        })
+    })
   },
 
   onRecentTap(e) {

@@ -2,12 +2,12 @@ package com.silvercare.iot.api;
 
 import com.silvercare.iot.domain.entity.Device;
 import com.silvercare.iot.domain.entity.FallAlert;
-import com.silvercare.iot.repository.DeviceRepository;
 import com.silvercare.iot.repository.FallAlertRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.silvercare.iot.security.MiniappPrincipal;
+import com.silvercare.iot.service.DeviceAccessService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -15,29 +15,29 @@ import java.util.List;
 @RequestMapping("/api/miniapp/devices")
 public class MiniappAlertController {
 
-    private final DeviceRepository deviceRepository;
+    private final DeviceAccessService deviceAccessService;
     private final FallAlertRepository fallAlertRepository;
 
-    public MiniappAlertController(DeviceRepository deviceRepository,
+    public MiniappAlertController(DeviceAccessService deviceAccessService,
                                   FallAlertRepository fallAlertRepository) {
-        this.deviceRepository = deviceRepository;
+        this.deviceAccessService = deviceAccessService;
         this.fallAlertRepository = fallAlertRepository;
     }
 
     @GetMapping("/{deviceNo}/fall-alerts")
-    public List<FallAlert> list(@PathVariable String deviceNo,
+    public List<FallAlert> list(@AuthenticationPrincipal MiniappPrincipal principal,
+                                @PathVariable String deviceNo,
                                 @RequestParam(defaultValue = "20") int size) {
-        Device device = deviceRepository.findByDeviceNo(deviceNo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
+        Device device = deviceAccessService.requireBoundDevice(principal.userId(), deviceNo);
         int clamped = Math.max(1, Math.min(size, 20));
         return fallAlertRepository.findTop20ByDeviceIdOrderByAlertedAtDesc(device.getId())
                 .stream().limit(clamped).toList();
     }
 
     @GetMapping("/{deviceNo}/fall-alerts/latest")
-    public ResponseEntity<FallAlert> latest(@PathVariable String deviceNo) {
-        Device device = deviceRepository.findByDeviceNo(deviceNo)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Device not found"));
+    public ResponseEntity<FallAlert> latest(@AuthenticationPrincipal MiniappPrincipal principal,
+                                            @PathVariable String deviceNo) {
+        Device device = deviceAccessService.requireBoundDevice(principal.userId(), deviceNo);
         return fallAlertRepository.findFirstByDeviceIdOrderByAlertedAtDesc(device.getId())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.noContent().build());

@@ -10,15 +10,15 @@
       <el-table-column prop="deviceNo" label="设备编号" width="140" />
       <el-table-column label="方向" width="90">
         <template #default="{ row }">
-          <el-tag :type="row.direction === 'INBOUND' ? '' : 'warning'" size="small">
-            {{ row.direction === 'INBOUND' ? '上行' : '下行' }}
+          <el-tag :type="row.direction === 'UPLINK' ? '' : 'warning'" size="small">
+            {{ row.direction === 'UPLINK' ? '上行' : '下行' }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="command" label="命令" width="120" />
       <el-table-column label="解析状态" width="100">
         <template #default="{ row }">
-          <el-tag :type="row.parseStatus === 'OK' ? 'success' : 'danger'" size="small">
+          <el-tag :type="row.parseStatus === 'SUCCESS' ? 'success' : 'danger'" size="small">
             {{ row.parseStatus }}
           </el-tag>
         </template>

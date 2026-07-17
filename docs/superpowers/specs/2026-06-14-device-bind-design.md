@@ -1,5 +1,8 @@
 # 设备绑定与改名设计
 
+> **Superseded:** 当前实现已使用微信登录用户和 `device_bindings` 绑定表。现行行为见
+> `docs/api/miniapp-auth.md`，请勿恢复下文“无用户体系”的旧方案。
+
 **日期：** 2026-06-14
 **项目：** silver-care-iot / backend
 **阶段：** C（无用户体系，ownerName 直接存设备上）

@@ -112,8 +112,9 @@ public class DeviceTcpServer {
         } catch (IOException ex) {
             log.warn("Device connection error: {}", remote, ex);
         } finally {
-            registry.remove(connection);
-            dispatcher.onConnectionClosed(connection);
+            if (registry.remove(connection)) {
+                dispatcher.onConnectionClosed(connection);
+            }
         }
     }
 

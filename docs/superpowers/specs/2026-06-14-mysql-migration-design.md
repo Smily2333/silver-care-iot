@@ -26,7 +26,7 @@
 
 ```sql
 CREATE DATABASE silver_care CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'silvercare'@'%' IDENTIFIED BY 'silvercare123';
+CREATE USER 'silvercare'@'%' IDENTIFIED BY '<secure-password>';
 GRANT ALL PRIVILEGES ON silver_care.* TO 'silvercare'@'%';
 FLUSH PRIVILEGES;
 ```
@@ -43,7 +43,7 @@ FLUSH PRIVILEGES;
 - `spring.datasource.url` 改为 `jdbc:mysql://127.0.0.1:3306/silver_care?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai`
 - `spring.datasource.driver-class-name` 改为 `com.mysql.cj.jdbc.Driver`
 - `spring.datasource.username` 改为 `silvercare`
-- `spring.datasource.password` 改为 `silvercare123`
+- `spring.datasource.password` 从 `SILVER_CARE_DB_PASSWORD` 环境变量读取
 - 新增 `hibernate.dialect: org.hibernate.dialect.MySQL8Dialect`
 - 移除 `spring.h2.console` 整块配置
 
@@ -72,5 +72,5 @@ FLUSH PRIVILEGES;
 ## 约束与风险
 
 - `ddl-auto: update` 不会删列，schema 漂移需人工跟踪——MVP 阶段可接受，生产前建议迁移到 Flyway
-- 密码 `silvercare123` 为开发环境默认值，生产部署前须通过环境变量注入替换
+- 数据库密码不得写入代码或文档，开发和生产环境均通过环境变量注入
 - `kangyang-mysql` 容器重建会导致数据丢失，需确认容器挂载了 volume（当前容器已运行 2 周，状态稳定）
