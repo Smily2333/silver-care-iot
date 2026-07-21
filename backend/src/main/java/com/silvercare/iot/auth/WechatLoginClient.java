@@ -2,6 +2,8 @@ package com.silvercare.iot.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.silvercare.iot.config.WechatMiniappProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -15,10 +17,14 @@ public class WechatLoginClient {
 
     private final RestClient restClient;
     private final WechatMiniappProperties properties;
+    private final ObjectMapper objectMapper;
 
-    public WechatLoginClient(RestClient.Builder builder, WechatMiniappProperties properties) {
+    public WechatLoginClient(RestClient.Builder builder,
+                             WechatMiniappProperties properties,
+                             ObjectMapper objectMapper) {
         this.restClient = builder.baseUrl("https://api.weixin.qq.com").build();
         this.properties = properties;
+        this.objectMapper = objectMapper;
     }
 
     public WechatSession exchange(String code) {
@@ -26,7 +32,7 @@ public class WechatLoginClient {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "WeChat login is not configured");
         }
         try {
-            WechatSession response = restClient.get()
+            String responseBody = restClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/sns/jscode2session")
                             .queryParam("appid", properties.getAppId())
@@ -35,7 +41,10 @@ public class WechatLoginClient {
                             .queryParam("grant_type", "authorization_code")
                             .build())
                     .retrieve()
-                    .body(WechatSession.class);
+                    .body(String.class);
+            WechatSession response = responseBody == null
+                    ? null
+                    : objectMapper.readValue(responseBody, WechatSession.class);
             if (response == null || response.errcode() != null || !StringUtils.hasText(response.openid())) {
                 String message = response == null ? "empty response" : response.errmsg();
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "WeChat login failed: " + message);
@@ -43,7 +52,7 @@ public class WechatLoginClient {
             return response;
         } catch (ResponseStatusException ex) {
             throw ex;
-        } catch (RestClientException ex) {
+        } catch (JsonProcessingException | RestClientException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "WeChat login service unavailable", ex);
         }
     }
