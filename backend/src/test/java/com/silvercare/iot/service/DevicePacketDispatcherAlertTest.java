@@ -7,6 +7,8 @@ import com.silvercare.iot.tcp.DeviceConnection;
 import com.silvercare.iot.tcp.DeviceConnectionRegistry;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,20 +38,21 @@ class DevicePacketDispatcherAlertTest {
         var idField = RawPacketLog.class.getDeclaredField("id");
         idField.setAccessible(true);
         idField.set(packetLog, 7L);
+        packetLog.setReceivedAt(Instant.parse("2018-01-12T07:06:26Z"));
 
         LocationRecord locationRecord = new LocationRecord();
 
         when(deviceService.ensureOnline(any())).thenReturn(device);
         when(rawPacketLogService.saveSuccess(any())).thenReturn(packetLog);
-        when(locationDataService.saveLocation(any(), any(), any())).thenReturn(locationRecord);
+        when(locationDataService.saveLocation(any(), any(), any(RawPacketLog.class))).thenReturn(locationRecord);
 
         dispatcher().dispatch(
                 "[3G*2016001000*0055*AL,120118,070625,A,22.570720,N,113.8620167,E,0.00,188.6,0.0,9,100,51,14188,0,00000010]",
                 connection
         );
 
-        verify(locationDataService).saveLocation(eq(device), any(), eq(7L));
-        verify(fallAlertService).saveAlert(eq(device), any(), eq(locationRecord), eq(7L));
+        verify(locationDataService).saveLocation(eq(device), any(), eq(packetLog));
+        verify(fallAlertService).saveAlert(eq(device), any(), eq(locationRecord), eq(packetLog));
         verify(connection).send(contains("AL"));
     }
 }

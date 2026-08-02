@@ -2,12 +2,14 @@ package com.silvercare.iot.service;
 
 import com.silvercare.iot.domain.entity.Device;
 import com.silvercare.iot.domain.entity.LocationRecord;
+import com.silvercare.iot.domain.entity.RawPacketLog;
 import com.silvercare.iot.protocol.ProtocolParser;
 import com.silvercare.iot.repository.LocationRecordRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -30,10 +32,14 @@ class LocationDataServiceTest {
 
         when(repository.save(any(LocationRecord.class))).thenAnswer(inv -> inv.getArgument(0));
 
+        Instant receivedAt = LocalDate.of(2018, 1, 12)
+                .atTime(LocalTime.of(7, 6, 26))
+                .atZone(ZoneOffset.UTC)
+                .toInstant();
         LocationRecord result = service.saveLocation(
                 device,
                 parser.parse("[3G*2016001000*00E0*UD,120118,070625,A,22.570720,N,113.8620167,E,0.00,188.6,0.0,9,100,51,14188,0,00000010,6,255,460,0,9360,5081,156,9360,4081,129,9360,4151,128,9360,5082,127,9360,4723,122,9360,4082,120,5,buyaoxialian,a0:c5:f2:b0:7.4:d0,-34,22.4]"),
-                1L
+                packetLog(receivedAt)
         );
 
         assertThat(result).isNotNull();
@@ -55,13 +61,42 @@ class LocationDataServiceTest {
 
         when(repository.save(any(LocationRecord.class))).thenAnswer(inv -> inv.getArgument(0));
 
+        Instant receivedAt = LocalDate.of(2018, 1, 12)
+                .atTime(LocalTime.of(7, 6, 26))
+                .atZone(ZoneOffset.UTC)
+                .toInstant();
         LocationRecord result = service.saveLocation(
                 device,
                 parser.parse("[3G*2016001000*0055*UD,120118,070625,A,22.570720,S,113.8620167,W,0.00,188.6,0.0,9,100,51,14188,0,00000010]"),
-                1L
+                packetLog(receivedAt)
         );
 
         assertThat(result.getLatitude()).isEqualByComparingTo(new BigDecimal("-22.570720"));
         assertThat(result.getLongitude()).isEqualByComparingTo(new BigDecimal("-113.8620167"));
+    }
+
+    @Test
+    void replacesImplausibleFutureLocationTimeWithPacketReceivedAt() {
+        LocationRecordRepository repository = mock(LocationRecordRepository.class);
+        LocationDataService service = new LocationDataService(repository);
+        ProtocolParser parser = new ProtocolParser();
+        Device device = new Device();
+        Instant receivedAt = Instant.parse("2026-07-03T10:19:49Z");
+
+        when(repository.save(any(LocationRecord.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        LocationRecord result = service.saveLocation(
+                device,
+                parser.parse("[3G*2016001000*0051*UD,070236,074134,V,39.032137,N,117.7007781,E,0.00,0.0,-23.9,1,77,100,0,0,00100000]"),
+                packetLog(receivedAt)
+        );
+
+        assertThat(result.getLocatedAt()).isEqualTo(receivedAt);
+    }
+
+    private RawPacketLog packetLog(Instant receivedAt) {
+        RawPacketLog packetLog = new RawPacketLog();
+        packetLog.setReceivedAt(receivedAt);
+        return packetLog;
     }
 }

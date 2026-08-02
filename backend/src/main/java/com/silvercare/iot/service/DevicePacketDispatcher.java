@@ -60,10 +60,10 @@ public class DevicePacketDispatcher {
                     sendAck(frame, connection);
                 }
                 case "UD", "UD2", "UD_LTE", "UD_WCDMA", "UD_TDSCDMA", "UD_CDMA" ->
-                        locationDataService.saveLocation(device, frame, packetLog.getId());
+                        locationDataService.saveLocation(device, frame, packetLog);
                 case "AL", "AL_LTE", "AL_WCDMA", "AL_TDSCDMA", "AL_CDMA" -> {
-                    LocationRecord locationRecord = locationDataService.saveLocation(device, frame, packetLog.getId());
-                    fallAlertService.saveAlert(device, frame, locationRecord, packetLog.getId());
+                    LocationRecord locationRecord = locationDataService.saveLocation(device, frame, packetLog);
+                    fallAlertService.saveAlert(device, frame, locationRecord, packetLog);
                     sendAck(frame, connection);
                 }
                 case "TKQ" -> sendAck(frame, connection);

@@ -2,28 +2,16 @@ package com.silvercare.iot.service;
 
 import com.silvercare.iot.domain.entity.Device;
 import com.silvercare.iot.domain.entity.LocationRecord;
+import com.silvercare.iot.domain.entity.RawPacketLog;
 import com.silvercare.iot.protocol.ProtocolFrame;
 import com.silvercare.iot.repository.LocationRecordRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
 
 @Service
 public class LocationDataService {
-
-    private static final DateTimeFormatter DEVICE_DATE_FORMATTER = new DateTimeFormatterBuilder()
-            .appendPattern("ddMM")
-            .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
-            .toFormatter();
-    private static final DateTimeFormatter DEVICE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HHmmss");
 
     private final LocationRecordRepository repository;
 
@@ -31,16 +19,13 @@ public class LocationDataService {
         this.repository = repository;
     }
 
-    public LocationRecord saveLocation(Device device, ProtocolFrame frame, Long rawPacketId) {
+    public LocationRecord saveLocation(Device device, ProtocolFrame frame, RawPacketLog packetLog) {
         String[] args = frame.content().split(",");
         LocationRecord record = new LocationRecord();
         record.setDeviceId(device.getId());
         record.setSourceCommand(frame.command());
-        record.setRawPacketId(rawPacketId);
-        Instant locatedAt = parseLocatedAt(args);
-        if (locatedAt != null) {
-            record.setLocatedAt(locatedAt);
-        }
+        record.setRawPacketId(packetLog.getId());
+        record.setLocatedAt(parseLocatedAt(args, packetLog.getReceivedAt()));
         record.setGpsValid("A".equalsIgnoreCase(value(args, 3)));
         record.setLatitude(parseCoordinate(args, 4, 5));
         record.setLatitudeHemisphere(value(args, 5));
@@ -59,20 +44,8 @@ public class LocationDataService {
         return repository.save(record);
     }
 
-    private Instant parseLocatedAt(String[] args) {
-        try {
-            String date = value(args, 1);
-            String time = value(args, 2);
-            if (date == null || time == null || date.isBlank() || time.isBlank()) {
-                return null;
-            }
-            return LocalDate.parse(date, DEVICE_DATE_FORMATTER)
-                    .atTime(LocalTime.parse(time, DEVICE_TIME_FORMATTER))
-                    .atZone(ZoneOffset.UTC)
-                    .toInstant();
-        } catch (DateTimeParseException ex) {
-            return null;
-        }
+    private Instant parseLocatedAt(String[] args, Instant receivedAt) {
+        return DeviceTimestampResolver.resolve(value(args, 1), value(args, 2), receivedAt);
     }
 
     private String value(String[] args, int index) {

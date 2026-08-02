@@ -111,7 +111,15 @@ public class RawPacketLog {
         return errorMessage;
     }
 
+    public Instant getReceivedAt() {
+        return receivedAt;
+    }
+
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public void setReceivedAt(Instant receivedAt) {
+        this.receivedAt = receivedAt;
     }
 }
