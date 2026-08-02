@@ -1,7 +1,7 @@
 const API_BASE_URLS = {
-  develop: 'http://120.53.225.169:8080',
-  trial: '',
-  release: ''
+  develop: 'https://api.nkucare.cloud',
+  trial: 'https://api.nkucare.cloud',
+  release: 'https://api.nkucare.cloud'
 }
 
 export function getApiBaseUrl() {

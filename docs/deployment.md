@@ -24,14 +24,16 @@ Use the filed `nkucare.cloud` domain with a valid TLS certificate. The public la
 ```text
 https://nkucare.cloud/api/*  -> backend http://127.0.0.1:8080/api/*
 https://nkucare.cloud/*      -> /var/www/silver-care-iot with SPA history fallback
+https://api.nkucare.cloud/api/* -> backend http://127.0.0.1:8080/api/*
 ```
 
 The HTTP bootstrap configuration is tracked at `deploy/nginx/silver-care-iot.conf`. Copy the built Web
-files from `web/dist` to `/var/www/silver-care-iot` before reloading Nginx. Both `nkucare.cloud` and
-`www.nkucare.cloud` must point to `120.53.225.169`; redirect `www` to the root domain after TLS is enabled.
+files from `web/dist` to `/var/www/silver-care-iot` before reloading Nginx. `nkucare.cloud`,
+`www.nkucare.cloud`, and `api.nkucare.cloud` must point to `120.53.225.169`; redirect `www` to the root
+domain after TLS is enabled.
 
-The domain currently needs ICP filing before Tencent Cloud will pass public traffic to this mainland
-server. Do not run certificate issuance or switch the mini program release URL until the filing is active.
+The domain must have an active ICP filing before Tencent Cloud will pass public traffic to this mainland
+server. Keep the filing active when changing DNS or public routing.
 
 The backend HTTP and device TCP ports should not share the same public access policy. Restrict MySQL and
 the backend HTTP port to the host or private network. Expose the device TCP port only where the watch
@@ -39,9 +41,9 @@ protocol requires it.
 
 ## Mini program domain
 
-1. Add `https://nkucare.cloud` to the mini program request legal-domain list.
-2. Set the same HTTPS origin for `trial` and `release` in `miniapp/config.js`.
-3. Keep the current HTTP IP only under `develop`; it is for the WeChat developer tool.
+1. Add `https://api.nkucare.cloud` to the mini program request legal-domain list.
+2. Set the same HTTPS origin for `develop`, `trial`, and `release` in `miniapp/config.js`.
+3. Do not use the backend IP or plain HTTP in mini program builds.
 4. Upload an experience build and verify login, first binding, health data, location and fall alerts.
 
 ## Web map tiles
