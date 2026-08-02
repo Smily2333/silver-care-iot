@@ -1,9 +1,12 @@
 const { getLocationRecords } = require('../../utils/api')
+const { getDemoLocationRecords, isDemoMode, demoDeviceNo } = require('../../utils/demo')
 
 Page({
   data: {
     deviceNo: '',
+    demo: false,
     loading: true,
+    errorMsg: '',
     focusPoint: null,
     records: [],
     center: { lat: 39.984120, lng: 116.307484 },
@@ -12,12 +15,13 @@ Page({
   },
 
   onLoad(options) {
-    const deviceNo = options.deviceNo || ''
+    const demo = isDemoMode(options)
+    const deviceNo = demo ? demoDeviceNo : (options.deviceNo || '')
     const lat = Number(options.lat)
     const lng = Number(options.lng)
     const focusPoint = Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null
-    this.setData({ deviceNo, focusPoint })
-    wx.setNavigationBarTitle({ title: '位置轨迹' })
+    this.setData({ deviceNo, demo, focusPoint })
+    wx.setNavigationBarTitle({ title: demo ? '位置记录（示例）' : '位置记录' })
     this.load(deviceNo)
   },
 
@@ -26,8 +30,9 @@ Page({
   },
 
   load(deviceNo) {
-    this.setData({ loading: true })
-    return getLocationRecords(deviceNo, 20)
+    this.setData({ loading: true, errorMsg: '' })
+    const request = this.data.demo ? Promise.resolve(getDemoLocationRecords()) : getLocationRecords(deviceNo, 20)
+    return request
       .then(records => {
         const formatted = records.map(r => ({
           ...r,
@@ -38,11 +43,15 @@ Page({
         this.setData({ records: formatted, ...mapData })
       })
       .catch(err => {
-        wx.showToast({ title: err.message, icon: 'none' })
+        this.setData({ errorMsg: err.message || '暂时无法加载位置记录' })
       })
       .finally(() => {
         this.setData({ loading: false })
       })
+  },
+
+  retryLoad() {
+    this.load(this.data.deviceNo)
   },
 
   _buildMapData(records) {
@@ -93,7 +102,7 @@ Page({
       id: 99,
       latitude: point.lat,
       longitude: point.lng,
-      title: '跌倒警报位置',
+      title: '疑似跌倒事件位置',
       iconPath: '/images/marker.png',
       width: 36,
       height: 45
@@ -109,6 +118,7 @@ Page({
 
   formatTime(isoStr) {
     const d = new Date(isoStr)
+    if (Number.isNaN(d.getTime())) return '-'
     const pad = n => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
   }

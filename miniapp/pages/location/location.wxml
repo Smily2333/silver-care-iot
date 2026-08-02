@@ -1,15 +1,25 @@
 <!--位置轨迹页-->
 <view class="page">
+  <view class="demo-banner" wx:if="{{demo}}">
+    <text class="demo-banner-title">匿名示例 · 只读体验</text>
+    <text class="demo-banner-text">以下坐标和轨迹为演示数据，不对应真实人员</text>
+  </view>
   <view wx:if="{{loading}}" class="loading-wrap">
     <text class="loading-icon">⏳</text>
     <text>加载中...</text>
   </view>
 
   <view wx:else>
+    <view class="load-error card" wx:if="{{errorMsg}}">
+      <text class="load-error-title">位置记录加载失败</text>
+      <text class="load-error-text">{{errorMsg}}</text>
+      <button class="retry-button" bindtap="retryLoad">重新加载</button>
+    </view>
+    <block wx:if="{{!errorMsg}}">
     <!-- 顶部渐变头部 -->
     <view class="page-header">
-      <text class="header-title">位置轨迹</text>
-      <text class="header-sub">实时位置与行动轨迹</text>
+      <text class="header-title">位置记录</text>
+      <text class="header-sub">智能手表上传的最近定位信息</text>
 
       <!-- 最新定位信息 -->
       <view class="location-info-row" wx:if="{{records.length > 0}}">
@@ -90,5 +100,7 @@
         </view>
       </view>
     </view>
+    <view class="page-disclaimer">定位可能因室内环境、设备信号或网络延迟产生偏差，请结合实际情况判断。</view>
+    </block>
   </view>
 </view>

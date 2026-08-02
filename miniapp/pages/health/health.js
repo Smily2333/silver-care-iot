@@ -1,16 +1,20 @@
 const { getHealthRecords } = require('../../utils/api')
+const { getDemoHealthRecords, isDemoMode, demoDeviceNo } = require('../../utils/demo')
 
 Page({
   data: {
     deviceNo: '',
+    demo: false,
     loading: true,
-    records: []
+    records: [],
+    errorMsg: ''
   },
 
   onLoad(options) {
-    const deviceNo = options.deviceNo || ''
-    this.setData({ deviceNo })
-    wx.setNavigationBarTitle({ title: '健康数据' })
+    const demo = isDemoMode(options)
+    const deviceNo = demo ? demoDeviceNo : (options.deviceNo || '')
+    this.setData({ deviceNo, demo })
+    wx.setNavigationBarTitle({ title: demo ? '健康趋势（示例）' : '健康趋势' })
     this.load(deviceNo)
   },
 
@@ -19,8 +23,9 @@ Page({
   },
 
   load(deviceNo) {
-    this.setData({ loading: true })
-    return getHealthRecords(deviceNo, 20)
+    this.setData({ loading: true, errorMsg: '' })
+    const request = this.data.demo ? Promise.resolve(getDemoHealthRecords()) : getHealthRecords(deviceNo, 20)
+    return request
       .then(records => {
         const formatted = records.map(r => ({
           ...r,
@@ -29,15 +34,20 @@ Page({
         this.setData({ records: formatted })
       })
       .catch(err => {
-        wx.showToast({ title: err.message, icon: 'none' })
+        this.setData({ errorMsg: err.message || '暂时无法加载健康记录' })
       })
       .finally(() => {
         this.setData({ loading: false })
       })
   },
 
+  retryLoad() {
+    this.load(this.data.deviceNo)
+  },
+
   formatTime(isoStr) {
     const d = new Date(isoStr)
+    if (Number.isNaN(d.getTime())) return '-'
     const pad = n => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
   }

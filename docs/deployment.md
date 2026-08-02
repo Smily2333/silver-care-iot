@@ -24,6 +24,7 @@ Use the filed `nkucare.cloud` domain with a valid TLS certificate. The public la
 ```text
 https://nkucare.cloud/api/*  -> backend http://127.0.0.1:8080/api/*
 https://nkucare.cloud/*      -> /var/www/silver-care-iot with SPA history fallback
+https://nkucare.cloud/privacy/ -> public privacy policy (`web/public/privacy/index.html`)
 https://api.nkucare.cloud/api/* -> backend http://127.0.0.1:8080/api/*
 ```
 
@@ -31,6 +32,9 @@ The HTTP bootstrap configuration is tracked at `deploy/nginx/silver-care-iot.con
 files from `web/dist` to `/var/www/silver-care-iot` before reloading Nginx. `nkucare.cloud`,
 `www.nkucare.cloud`, and `api.nkucare.cloud` must point to `120.53.225.169`; redirect `www` to the root
 domain after TLS is enabled.
+
+Vite copies `web/public/privacy/index.html` to `web/dist/privacy/index.html`. Verify the public policy at
+`https://nkucare.cloud/privacy/` after every Web deployment.
 
 The domain must have an active ICP filing before Tencent Cloud will pass public traffic to this mainland
 server. Keep the filing active when changing DNS or public routing.

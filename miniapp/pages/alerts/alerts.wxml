@@ -1,20 +1,30 @@
-<!--跌倒警报列表页-->
+<!--设备安全事件列表页-->
 <view class="page">
+  <view class="demo-banner" wx:if="{{demo}}">
+    <text class="demo-banner-title">匿名示例 · 只读体验</text>
+    <text class="demo-banner-text">以下事件为演示数据，不对应真实人员或设备</text>
+  </view>
   <view wx:if="{{loading}}" class="loading-wrap">
     <text class="loading-icon">⏳</text>
     <text>加载中...</text>
   </view>
 
   <view wx:else>
+    <view class="load-error card" wx:if="{{errorMsg}}">
+      <text class="load-error-title">安全事件加载失败</text>
+      <text class="load-error-text">{{errorMsg}}</text>
+      <button class="retry-button" bindtap="retryLoad">重新加载</button>
+    </view>
+    <block wx:if="{{!errorMsg}}">
     <view class="page-header">
-      <text class="header-title">跌倒警报</text>
-      <text class="header-sub">共 {{alerts.length}} 条记录</text>
+      <text class="header-title">安全事件</text>
+      <text class="header-sub">疑似跌倒记录 · 共 {{alerts.length}} 条</text>
     </view>
 
     <view class="content-area">
       <view class="card empty-card" wx:if="{{alerts.length === 0}}">
         <text class="empty-icon">✓</text>
-        <text class="empty-text">暂无跌倒警报记录</text>
+        <text class="empty-text">暂无疑似跌倒事件</text>
       </view>
 
       <view
@@ -23,7 +33,7 @@
         class="card alert-card"
       >
         <view class="alert-card-head">
-          <view class="alert-badge">跌倒警报</view>
+          <view class="alert-badge">疑似跌倒</view>
           <text class="alert-time">{{item.alertedAtStr}}</text>
         </view>
 
@@ -45,6 +55,8 @@
           查看位置
         </button>
       </view>
+      <view class="page-disclaimer">设备告警可能存在误报或延迟，请及时联系佩戴人核实；紧急情况请联系专业救援机构。</view>
     </view>
+    </block>
   </view>
 </view>

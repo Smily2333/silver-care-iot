@@ -1,3 +1,5 @@
 {
+  "navigationBarTitleText": "银龄守护",
+  "enablePullDownRefresh": true,
   "usingComponents": {}
 }

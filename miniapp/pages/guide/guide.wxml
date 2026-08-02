@@ -1,0 +1,62 @@
+<view class="page">
+  <view class="guide-header">
+    <text class="guide-kicker">使用说明</text>
+    <text class="guide-title">开始使用银龄守护</text>
+    <text class="guide-desc">本小程序用于查看已绑定智能手表上传的数据，方便家人进行日常照护。</text>
+  </view>
+
+  <view class="content">
+    <view class="steps-card">
+      <view class="step-row">
+        <view class="step-number">1</view>
+        <view class="step-content">
+          <text class="step-title">确认佩戴人授权</text>
+          <text class="step-text">健康和位置数据与个人生活密切相关，请先获得佩戴人授权。</text>
+        </view>
+      </view>
+      <view class="step-row">
+        <view class="step-number">2</view>
+        <view class="step-content">
+          <text class="step-title">查找设备编号</text>
+          <text class="step-text">设备编号通常位于手表背面、包装标签或设备资料中。</text>
+        </view>
+      </view>
+      <view class="step-row">
+        <view class="step-number">3</view>
+        <view class="step-content">
+          <text class="step-title">输入编号并绑定</text>
+          <text class="step-text">绑定后，当前微信可查看该设备上传的健康趋势、位置记录和安全事件。</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="info-card">
+      <text class="card-title">数据说明</text>
+      <view class="info-item">
+        <text class="info-label">健康趋势</text>
+        <text class="info-text">展示手表上报的心率、血压和体温等设备测量记录。</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">位置记录</text>
+        <text class="info-text">定位可能受室内环境、卫星信号、设备电量和网络延迟影响。</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">疑似跌倒</text>
+        <text class="info-text">设备告警可能存在误报，请联系佩戴人核实实际情况。</text>
+      </view>
+    </view>
+
+    <view class="warning-card">
+      <text class="warning-title">重要提示</text>
+      <text class="warning-text">本服务仅供日常照护参考，不提供医疗诊断、治疗或紧急救援服务。如出现身体不适或紧急情况，请及时联系医疗、救援机构或家人。</text>
+    </view>
+
+    <button class="primary-button" bindtap="enterDemo">先体验匿名示例</button>
+    <button class="secondary-button" bindtap="backHome">返回首页绑定设备</button>
+
+    <view class="privacy-entry" bindtap="openPrivacy">
+      <text>查看隐私与数据说明</text>
+      <text>›</text>
+    </view>
+  </view>
+</view>

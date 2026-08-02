@@ -1,9 +1,12 @@
 const { getOverview, updateOwnerName, getLatestFallAlert } = require('../../utils/api')
+const { getDemoOverview, getDemoLatestAlert, isDemoMode, demoDeviceNo } = require('../../utils/demo')
 
 Page({
   data: {
     deviceNo: '',
+    demo: false,
     loading: true,
+    errorMsg: '',
     data: { device: {}, latestHealth: null, latestLocation: null },
     lastHeartbeat: '-',
     measuredAt: '-',
@@ -11,6 +14,7 @@ Page({
     displayName: '',
     editing: false,
     editValue: '',
+    canSave: false,
     saving: false,
     hasNewAlert: false,
     latestAlert: null,
@@ -18,27 +22,32 @@ Page({
   },
 
   onLoad(options) {
-    const deviceNo = options.deviceNo || ''
-    this.setData({ deviceNo })
-    wx.setNavigationBarTitle({ title: deviceNo })
+    const demo = isDemoMode(options)
+    const deviceNo = demo ? demoDeviceNo : (options.deviceNo || '')
+    this.setData({ deviceNo, demo })
+    wx.setNavigationBarTitle({ title: demo ? '守护中心（示例）' : deviceNo })
     this.load(deviceNo)
   },
 
   onShow() {
-    if (this.data.deviceNo) {
-      this.checkLatestAlert(this.data.deviceNo)
+    if (!this.data.deviceNo) return
+    if (this.data.demo) {
+      this._applyLatestAlert(getDemoLatestAlert())
+      return
     }
+    this.checkLatestAlert(this.data.deviceNo)
   },
 
   onPullDownRefresh() {
     this.load(this.data.deviceNo)
-      .then(() => this.checkLatestAlert(this.data.deviceNo))
+      .then(() => this.data.demo ? null : this.checkLatestAlert(this.data.deviceNo))
       .finally(() => wx.stopPullDownRefresh())
   },
 
   load(deviceNo) {
-    this.setData({ loading: true })
-    return getOverview(deviceNo)
+    this.setData({ loading: true, errorMsg: '' })
+    const request = this.data.demo ? Promise.resolve(getDemoOverview()) : getOverview(deviceNo)
+    return request
       .then(res => {
         const displayName = res.device.ownerName || deviceNo
         this.setData({
@@ -48,24 +57,37 @@ Page({
           measuredAt: res.latestHealth?.measuredAt ? this.formatTime(res.latestHealth.measuredAt) : '-',
           locatedAt: res.latestLocation?.locatedAt ? this.formatTime(res.latestLocation.locatedAt) : '-'
         })
+        if (this.data.demo) this._applyLatestAlert(getDemoLatestAlert())
       })
       .catch(err => {
-        wx.showToast({ title: err.message, icon: 'none' })
+        const message = err.message || '暂时无法加载设备数据'
+        this.setData({ errorMsg: message })
       })
       .finally(() => {
         this.setData({ loading: false })
       })
   },
 
+  retryLoad() {
+    this.load(this.data.deviceNo)
+  },
+
   startEdit() {
-    this.setData({ editing: true, editValue: this.data.data.device.ownerName || '' })
+    if (this.data.demo) {
+      wx.showToast({ title: '示例模式为只读', icon: 'none' })
+      return
+    }
+    const editValue = this.data.data.device.ownerName || ''
+    this.setData({ editing: true, editValue, canSave: Boolean(editValue.trim()) })
   },
 
   onEditInput(e) {
-    this.setData({ editValue: e.detail.value })
+    const editValue = e.detail.value
+    this.setData({ editValue, canSave: Boolean(editValue.trim()) })
   },
 
   saveOwnerName() {
+    if (this.data.demo) return
     const name = this.data.editValue.trim()
     if (!name || this.data.saving) return
     this.setData({ saving: true })
@@ -76,6 +98,7 @@ Page({
           data: newData,
           displayName: updatedDevice.ownerName || this.data.deviceNo,
           editing: false,
+          canSave: false,
           saving: false
         })
         wx.showToast({ title: '保存成功', icon: 'success' })
@@ -87,20 +110,26 @@ Page({
   },
 
   goHealth() {
-    wx.navigateTo({ url: `/pages/health/health?deviceNo=${this.data.deviceNo}` })
+    wx.navigateTo({ url: this._pageUrl('/pages/health/health') })
   },
 
   goLocation() {
-    wx.navigateTo({ url: `/pages/location/location?deviceNo=${this.data.deviceNo}` })
+    wx.navigateTo({ url: this._pageUrl('/pages/location/location') })
   },
 
   goAlerts() {
     const alert = this.data.latestAlert
-    if (alert && alert.alertedAt) {
+    if (!this.data.demo && alert && alert.alertedAt) {
       wx.setStorageSync('lastSeenAlertAt_' + this.data.deviceNo, alert.alertedAt)
     }
     this.setData({ hasNewAlert: false })
-    wx.navigateTo({ url: `/pages/alerts/alerts?deviceNo=${this.data.deviceNo}` })
+    wx.navigateTo({ url: this._pageUrl('/pages/alerts/alerts') })
+  },
+
+  _pageUrl(path) {
+    return this.data.demo
+      ? `${path}?demo=1`
+      : `${path}?deviceNo=${encodeURIComponent(this.data.deviceNo)}`
   },
 
   checkLatestAlert(deviceNo) {
@@ -110,36 +139,37 @@ Page({
           this.setData({ hasNewAlert: false, latestAlert: null, latestAlertTime: '-' })
           return
         }
-
         const lastSeen = wx.getStorageSync('lastSeenAlertAt_' + deviceNo)
-        const isNew = alert.alertedAt !== lastSeen
-        this.setData({
-          hasNewAlert: isNew,
-          latestAlert: alert,
-          latestAlertTime: this.formatTime(alert.alertedAt)
-        })
+        this._applyLatestAlert(alert, alert.alertedAt !== lastSeen)
 
-        if (isNew) {
+        if (alert.alertedAt !== lastSeen) {
           wx.showModal({
-            title: '跌倒警报',
-            content: `检测到疑似跌倒事件\n时间：${this.formatTime(alert.alertedAt)}`,
-            confirmText: '查看',
-            cancelText: '稍后',
+            title: '疑似跌倒事件',
+            content: `设备上报疑似跌倒事件\n时间：${this.formatTime(alert.alertedAt)}\n请结合实际情况及时确认。`,
+            confirmText: '查看记录',
+            cancelText: '稍后处理',
             success: res => {
-              if (res.confirm) {
-                this.goAlerts()
-              }
+              if (res.confirm) this.goAlerts()
             }
           })
         }
       })
       .catch(() => {
-        // 告警轮询不阻塞概览页主数据展示
+        // 告警轮询不阻塞概览页主要数据展示。
       })
+  },
+
+  _applyLatestAlert(alert, isNew = true) {
+    this.setData({
+      hasNewAlert: Boolean(alert && isNew),
+      latestAlert: alert || null,
+      latestAlertTime: alert?.alertedAt ? this.formatTime(alert.alertedAt) : '-'
+    })
   },
 
   formatTime(isoStr) {
     const d = new Date(isoStr)
+    if (Number.isNaN(d.getTime())) return '-'
     const pad = n => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
   }

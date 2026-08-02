@@ -1,0 +1,31 @@
+page { background: #f3f6f8; }
+.page { min-height: 100vh; color: #1c293a; }
+.guide-header { padding: 66rpx 36rpx 76rpx; background: linear-gradient(145deg, #102b46, #1c6b5c); }
+.guide-kicker, .guide-title, .guide-desc { display: block; }
+.guide-kicker { color: #83dfbd; font-size: 23rpx; letter-spacing: 3rpx; }
+.guide-title { margin-top: 18rpx; color: #fff; font-size: 45rpx; font-weight: 750; }
+.guide-desc { margin-top: 20rpx; color: rgba(255,255,255,0.68); font-size: 25rpx; line-height: 1.7; }
+.content { padding: 28rpx 24rpx 60rpx; }
+.steps-card, .info-card, .warning-card { margin-bottom: 24rpx; padding: 32rpx; border-radius: 22rpx; background: #fff; box-shadow: 0 5rpx 20rpx rgba(20,48,67,0.05); }
+.step-row { display: flex; gap: 22rpx; padding: 20rpx 0; border-bottom: 1rpx solid #edf0f2; }
+.step-row:last-child { border-bottom: none; }
+.step-number { width: 50rpx; height: 50rpx; flex-shrink: 0; border-radius: 18rpx; background: #e9f5f0; color: #1e715b; text-align: center; line-height: 50rpx; font-size: 24rpx; font-weight: 700; }
+.step-content { flex: 1; }
+.step-title, .step-text { display: block; }
+.step-title { color: #243042; font-size: 27rpx; font-weight: 700; }
+.step-text { margin-top: 9rpx; color: #7d8995; font-size: 23rpx; line-height: 1.65; }
+.card-title { display: block; margin-bottom: 10rpx; color: #1c293a; font-size: 30rpx; font-weight: 700; }
+.info-item { padding: 22rpx 0; border-bottom: 1rpx solid #edf0f2; }
+.info-item:last-child { border-bottom: none; padding-bottom: 0; }
+.info-label, .info-text { display: block; }
+.info-label { color: #286c5a; font-size: 25rpx; font-weight: 650; }
+.info-text { margin-top: 8rpx; color: #7d8995; font-size: 23rpx; line-height: 1.65; }
+.warning-card { border: 1rpx solid #f0ded4; background: #fffaf7; }
+.warning-title, .warning-text { display: block; }
+.warning-title { color: #9a5d3e; font-size: 26rpx; font-weight: 700; }
+.warning-text { margin-top: 12rpx; color: #806d63; font-size: 22rpx; line-height: 1.75; }
+button::after { border: none; }
+.primary-button, .secondary-button { height: 84rpx; line-height: 84rpx; border-radius: 18rpx; font-size: 27rpx; }
+.primary-button { background: #1d6b59; color: #fff; }
+.secondary-button { margin-top: 16rpx; background: #fff; color: #315f55; border: 1rpx solid #d9e4df; }
+.privacy-entry { display: flex; justify-content: space-between; margin-top: 24rpx; padding: 28rpx 10rpx; color: #65766f; font-size: 23rpx; }

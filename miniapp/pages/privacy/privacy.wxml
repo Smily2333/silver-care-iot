@@ -1,0 +1,60 @@
+<view class="page">
+  <view class="privacy-header">
+    <text class="privacy-title">隐私与数据说明</text>
+    <text class="privacy-desc">我们只在提供设备绑定和照护数据展示所必需的范围内处理信息。</text>
+  </view>
+
+  <view class="content">
+    <view class="privacy-card">
+      <text class="card-title">可能处理的信息</text>
+      <view class="data-item">
+        <text class="data-name">微信账号标识</text>
+        <text class="data-purpose">用于识别当前用户、维持登录状态和设备访问权限。</text>
+      </view>
+      <view class="data-item">
+        <text class="data-name">设备编号与佩戴人称呼</text>
+        <text class="data-purpose">用于绑定智能手表并区分家庭成员。</text>
+      </view>
+      <view class="data-item">
+        <text class="data-name">设备健康测量记录</text>
+        <text class="data-purpose">用于展示心率、血压、体温和步数等设备上报信息。</text>
+      </view>
+      <view class="data-item">
+        <text class="data-name">设备位置与安全事件</text>
+        <text class="data-purpose">用于展示手表定位记录和疑似跌倒事件。小程序不会读取当前手机位置。</text>
+      </view>
+    </view>
+
+    <view class="privacy-card">
+      <text class="card-title">使用和保护原则</text>
+      <text class="paragraph">上述数据用于向已绑定用户提供设备状态和日常照护信息，不用于广告画像。除法律法规要求、保障安全或提供服务所必需的技术支持外，不主动向无关第三方提供。</text>
+      <text class="paragraph">请仅在获得佩戴人授权后绑定设备，不要在公共场合展示包含健康或位置的信息。</text>
+    </view>
+
+    <view class="privacy-card">
+      <text class="card-title">你的选择与权利</text>
+      <text class="paragraph">你可以清除本机“最近查看”记录。解除云端设备绑定、查询、更正或删除相关数据，可以按照《用户隐私保护指引》公示的联系方式向小程序运营主体提交申请。</text>
+      <view class="contact-row" bindtap="copyContactEmail">
+        <view>
+          <text class="contact-label">联系邮箱</text>
+          <text class="contact-value">2401346847@qq.com</text>
+        </view>
+        <text class="copy-label">点击复制</text>
+      </view>
+    </view>
+
+    <view class="demo-note">
+      <text class="demo-note-title">关于匿名示例</text>
+      <text class="demo-note-text">示例模式的数据在小程序本地动态生成，不对应真实人员或设备，也不会因为查看示例而绑定账号。</text>
+    </view>
+
+    <view class="policy-link" bindtap="copyPrivacyUrl">
+      <view>
+        <text class="policy-link-title">完整隐私保护指引网页</text>
+        <text class="policy-link-url">https://nkucare.cloud/privacy/</text>
+      </view>
+      <text class="copy-label">复制网址</text>
+    </view>
+    <button class="official-button" bindtap="openOfficialPrivacy">查看微信平台《用户隐私保护指引》</button>
+  </view>
+</view>

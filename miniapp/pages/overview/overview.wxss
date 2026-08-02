@@ -118,6 +118,45 @@ page {
   padding: 28rpx 0 60rpx;
 }
 
+.demo-banner {
+  padding: 20rpx 28rpx;
+  background: #eef8f3;
+  border-bottom: 1rpx solid #d8ebe2;
+}
+
+.demo-banner-title,
+.demo-banner-text {
+  display: block;
+}
+
+.demo-banner-title {
+  color: #17684f;
+  font-size: 25rpx;
+  font-weight: 700;
+}
+
+.demo-banner-text {
+  margin-top: 6rpx;
+  color: #638074;
+  font-size: 21rpx;
+  line-height: 1.5;
+}
+
+.load-error {
+  margin: 100rpx 28rpx 0;
+  padding: 46rpx 34rpx;
+  border-radius: 22rpx;
+  background: #fff;
+  text-align: center;
+}
+
+.load-error-title,
+.load-error-text { display: block; }
+.load-error-title { color: #243042; font-size: 30rpx; font-weight: 700; }
+.load-error-text { margin-top: 14rpx; color: #8a98a6; font-size: 24rpx; line-height: 1.6; }
+.retry-button { width: 240rpx; margin-top: 28rpx; background: #1d6b59; color: #fff; font-size: 26rpx; }
+.retry-button::after { border: none; }
+
 .alert-banner {
   margin: 0 24rpx 24rpx;
   padding: 24rpx 28rpx;
@@ -372,9 +411,20 @@ page {
 
 /* 名字编辑态 */
 .edit-icon {
-  font-size: 28rpx;
+  font-size: 22rpx;
+  color: rgba(255,255,255,0.75);
   opacity: 0.7;
   padding: 4rpx 8rpx;
+}
+
+.overview-disclaimer {
+  margin: 28rpx 24rpx 0;
+  padding: 22rpx 26rpx;
+  border-radius: 16rpx;
+  background: #f7f9fa;
+  color: #7d8995;
+  font-size: 21rpx;
+  line-height: 1.65;
 }
 
 .name-input {

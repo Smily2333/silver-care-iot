@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="银龄守护小程序用户隐私保护指引">
+  <title>银龄守护用户隐私保护指引</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #667582;
+      --brand: #1d6b59;
+      --brand-soft: #edf7f2;
+      --line: #e3e9e7;
+      --paper: #ffffff;
+      --canvas: #f4f7f6;
+      --notice: #fff8f3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+    a { color: var(--brand); }
+    .hero {
+      padding: 52px 20px 64px;
+      background: linear-gradient(145deg, #102b46 0%, #1d6b59 100%);
+      color: #fff;
+    }
+    .hero-inner, main, footer { width: min(860px, calc(100% - 32px)); margin: 0 auto; }
+    .eyebrow { margin: 0 0 12px; color: #92e2c2; font-size: 13px; letter-spacing: 0.18em; }
+    h1 { margin: 0; font-size: clamp(30px, 6vw, 44px); line-height: 1.25; }
+    .hero p { margin: 18px 0 0; color: rgba(255,255,255,.72); }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 22px; color: rgba(255,255,255,.62); font-size: 13px; }
+    main { margin-top: -28px; padding-bottom: 36px; }
+    section, .summary {
+      margin-bottom: 18px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--paper);
+      box-shadow: 0 8px 28px rgba(24, 62, 55, .05);
+    }
+    .summary { border-color: #d5e8df; background: var(--brand-soft); }
+    h2 { margin: 0 0 14px; font-size: 21px; line-height: 1.4; }
+    h3 { margin: 22px 0 8px; font-size: 17px; }
+    p { margin: 10px 0; color: var(--muted); }
+    ul { margin: 10px 0; padding-left: 22px; color: var(--muted); }
+    li { margin: 8px 0; }
+    table { width: 100%; margin-top: 14px; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 13px 14px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #f6f9f8; color: #35443f; }
+    td { color: var(--muted); }
+    .notice { padding: 18px 20px; border-radius: 12px; background: var(--notice); color: #795f51; }
+    .contact { font-size: 17px; font-weight: 650; }
+    footer { padding: 0 0 42px; color: #8a9691; text-align: center; font-size: 13px; }
+    @media (max-width: 640px) {
+      .hero { padding-top: 38px; }
+      section, .summary { padding: 22px 20px; border-radius: 15px; }
+      .table-wrap { overflow-x: auto; }
+      table { min-width: 620px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">SILVER CARE</p>
+      <h1>银龄守护用户隐私保护指引</h1>
+      <p>我们重视用户和智能手表佩戴人的个人信息与隐私保护。本指引说明银龄守护小程序如何处理相关信息，以及你可以如何管理这些信息。</p>
+      <div class="meta">
+        <span>发布日期：2026年8月3日</span>
+        <span>生效日期：2026年8月3日</span>
+        <span>版本：1.0</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="summary">
+      <strong>摘要说明</strong>
+      <p>银龄守护用于展示已绑定智能手表上传的设备状态、健康测量记录、位置记录和疑似跌倒事件，供家庭日常照护参考。请仅在获得佩戴人授权后绑定和查看设备数据。</p>
+    </div>
+
+    <section>
+      <h2>一、适用范围</h2>
+      <p>本指引适用于银龄守护微信小程序及与其直接相关的服务。微信平台自身提供的账号、网络和基础能力由微信按照其规则处理，具体请同时参阅微信平台的相关隐私政策。</p>
+    </section>
+
+    <section>
+      <h2>二、我们处理的信息及用途</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>信息类型</th><th>具体内容</th><th>处理目的</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>微信账号标识</td><td>通过微信登录流程获得的用户唯一标识和登录会话信息</td><td>识别当前用户、维持登录状态、控制设备访问权限</td></tr>
+            <tr><td>设备与绑定信息</td><td>智能手表设备编号、型号、佩戴人称呼、绑定关系</td><td>完成设备绑定、区分佩戴人并展示对应设备</td></tr>
+            <tr><td>设备状态</td><td>在线状态、最后同步时间、电量、信号、步数等</td><td>展示智能手表的运行和同步状态</td></tr>
+            <tr><td>健康测量记录</td><td>心率、血压、体温以及设备测量时间</td><td>展示设备上传的健康趋势，辅助家庭日常照护</td></tr>
+            <tr><td>设备位置记录</td><td>智能手表上传的经纬度、定位时间、GPS状态和轨迹</td><td>展示佩戴设备的最近定位和历史位置记录</td></tr>
+            <tr><td>安全事件</td><td>设备上报的疑似跌倒事件、发生时间及相关位置</td><td>提示已绑定用户及时联系佩戴人核实情况</td></tr>
+            <tr><td>运行与安全日志</td><td>请求时间、网络地址、接口状态、错误信息等必要日志</td><td>保障服务安全、排查故障、防止滥用</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>小程序目前不会主动读取当前手机的定位、通讯录、相册、摄像头或麦克风。位置数据来自已绑定智能手表，而不是当前微信设备。</p>
+    </section>
+
+    <section>
+      <h2>三、信息的使用方式</h2>
+      <ul>
+        <li>向已绑定用户展示智能手表和佩戴人的相关数据；</li>
+        <li>维持账号登录、设备绑定和访问控制；</li>
+        <li>提供疑似跌倒事件提示和历史记录；</li>
+        <li>分析故障、提升服务稳定性并保障系统安全；</li>
+        <li>履行法律法规规定的义务。</li>
+      </ul>
+      <p>我们不会将上述信息用于与银龄守护无关的广告画像，也不会以出售个人信息为目的处理这些数据。</p>
+    </section>
+
+    <section>
+      <h2>四、信息的保存与安全</h2>
+      <p>我们在实现本指引所述目的所必要的期限内保存信息；法律法规另有保存期限要求的，按照其要求执行。超出必要期限后，我们将根据实际情况删除、匿名化处理或停止不必要的使用。</p>
+      <p>我们采取访问控制、身份认证、HTTPS 传输、服务端权限校验、日志审计等合理措施保护信息。但请理解，任何网络服务都无法保证绝对安全；如发现安全风险，请及时通过本指引所列邮箱联系我们。</p>
+    </section>
+
+    <section>
+      <h2>五、信息的共享、转让与公开披露</h2>
+      <p>除以下情形外，我们不会主动向无关第三方共享个人信息：</p>
+      <ul>
+        <li>取得相关个人的明确同意；</li>
+        <li>为实现微信登录、云服务器托管、网络安全等必要技术服务，在最小范围内由服务提供方处理；</li>
+        <li>根据法律法规、司法机关或行政机关的合法要求提供；</li>
+        <li>为保护用户、佩戴人或公众的生命财产安全且难以事先取得同意的合理情形。</li>
+      </ul>
+      <p>如发生业务合并、分立、转让或运营主体变更，我们会要求新的信息持有方继续受本指引约束，或依法重新取得同意。</p>
+    </section>
+
+    <section>
+      <h2>六、你的权利与选择</h2>
+      <p>你可以通过小程序查看已绑定设备的信息，并清除本机“最近查看”快捷记录。清除本机记录不会自动解除云端绑定。</p>
+      <p>如需查询、更正、复制或删除相关信息，撤回授权，解除设备绑定，注销相关服务，或对个人信息处理提出意见，可以通过联系邮箱提交申请。为保障信息安全，我们可能需要核验申请人与微信账号、设备或佩戴人的关系。</p>
+      <p>我们将在核验身份和请求范围后，于法律法规要求或合理期限内处理并答复。法律法规另有规定，或请求可能损害他人合法权益的除外。</p>
+    </section>
+
+    <section>
+      <h2>七、佩戴人授权与未成年人保护</h2>
+      <p>设备绑定人应确保已获得佩戴人的充分授权，并仅将数据用于合理的家庭照护目的。不要擅自将佩戴人的健康、位置或安全事件信息提供给无关人员。</p>
+      <p>如相关用户或佩戴人为未成年人，应由其监护人阅读并同意本指引后使用相关服务。</p>
+    </section>
+
+    <section>
+      <h2>八、服务边界</h2>
+      <div class="notice">银龄守护展示的是智能手表上传的数据，仅供日常照护参考，不作为医疗诊断、治疗、用药或紧急救援依据。定位和疑似跌倒事件可能因设备状态、环境或网络产生偏差、误报或延迟。如出现身体不适或紧急情况，请及时联系家人、医疗机构或专业救援机构。</div>
+    </section>
+
+    <section>
+      <h2>九、本指引的更新</h2>
+      <p>我们可能根据服务功能、法律法规或平台规则的变化更新本指引。发生重要变化时，我们将通过小程序页面、弹窗或其他适当方式提示。未经依法取得同意，我们不会降低用户依据本指引享有的权利。</p>
+    </section>
+
+    <section>
+      <h2>十、联系我们</h2>
+      <p>如对本指引、设备绑定或个人信息处理有疑问、意见或请求，请发送邮件并说明相关微信账号、设备编号及具体诉求。请勿在邮件中发送不必要的身份证件或完整健康记录。</p>
+      <p class="contact">联系邮箱：<a href="mailto:2401346847@qq.com">2401346847@qq.com</a></p>
+    </section>
+  </main>
+
+  <footer>© 2026 银龄守护 · 用户隐私保护指引</footer>
+</body>
+</html>

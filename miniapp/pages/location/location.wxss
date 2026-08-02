@@ -7,6 +7,18 @@ page {
   background: #f0f2f5;
 }
 
+.demo-banner { padding: 20rpx 28rpx; background: #eef8f3; border-bottom: 1rpx solid #d8ebe2; }
+.demo-banner-title, .demo-banner-text { display: block; }
+.demo-banner-title { color: #17684f; font-size: 25rpx; font-weight: 700; }
+.demo-banner-text { margin-top: 6rpx; color: #638074; font-size: 21rpx; }
+.load-error { margin-top: 40rpx; text-align: center; }
+.load-error-title, .load-error-text { display: block; }
+.load-error-title { color: #243042; font-size: 29rpx; font-weight: 700; }
+.load-error-text { margin-top: 12rpx; color: #8a98a6; font-size: 23rpx; }
+.retry-button { width: 230rpx; margin-top: 24rpx; background: #1d6b59; color: #fff; font-size: 25rpx; }
+.retry-button::after { border: none; }
+.page-disclaimer { margin: 0 24rpx 28rpx; padding: 22rpx 26rpx; border-radius: 16rpx; background: #f8fafb; color: #7d8995; font-size: 21rpx; line-height: 1.6; }
+
 /* 顶部渐变区 */
 .page-header {
   background: linear-gradient(160deg, #0f2544 0%, #1a3f6f 55%, #1e5799 100%);

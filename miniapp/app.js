@@ -1,10 +1,5 @@
-const { loginMiniapp } = require('./utils/api')
-
 App({
-  onLaunch() {
-    loginMiniapp().catch(() => {
-      // 页面请求时会再次登录并展示具体错误。
-    })
-  },
+  // 真实设备 API 会在首次请求时按需完成微信登录。
+  // 首页说明页和匿名演示模式无需访问业务后端。
   globalData: {}
 })

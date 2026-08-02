@@ -4,12 +4,14 @@
     "pages/overview/overview",
     "pages/health/health",
     "pages/location/location",
-    "pages/alerts/alerts"
+    "pages/alerts/alerts",
+    "pages/guide/guide",
+    "pages/privacy/privacy"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#304156",
-    "navigationBarTitleText": "Silver Care",
+    "navigationBarTitleText": "银龄守护",
     "navigationBarTextStyle": "white"
   },
   "sitemapLocation": "sitemap.json"
