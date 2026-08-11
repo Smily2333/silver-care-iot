@@ -43,6 +43,7 @@ function initMap() {
     zoomControl: true,
     attributionControl: true
   })
+  map.attributionControl.setPrefix(false)
 
   L.tileLayer(TILE_URL, {
     maxZoom: 19,
