@@ -1,6 +1,7 @@
 <template>
   <div class="location-map-wrap">
     <div ref="mapEl" class="location-map" :style="{ height }"></div>
+    <div class="map-attribution">{{ TILE_ATTRIBUTION }}</div>
     <div v-if="!validRecords.length" class="map-empty">暂无有效位置数据</div>
   </div>
 </template>
@@ -17,7 +18,7 @@ const props = defineProps({
 
 const DEFAULT_CENTER = [39.984120, 116.307484]
 const TILE_URL = import.meta.env.VITE_MAP_TILE_URL || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-const TILE_ATTRIBUTION = import.meta.env.VITE_MAP_TILE_ATTRIBUTION || '&copy; OpenStreetMap contributors'
+const TILE_ATTRIBUTION = import.meta.env.VITE_MAP_TILE_ATTRIBUTION || '\u00A9 OpenStreetMap contributors'
 
 const mapEl = ref(null)
 let map = null
@@ -41,13 +42,11 @@ function initMap() {
     center: DEFAULT_CENTER,
     zoom: 15,
     zoomControl: true,
-    attributionControl: true
+    attributionControl: false
   })
-  map.attributionControl.setPrefix(false)
 
   L.tileLayer(TILE_URL, {
-    maxZoom: 19,
-    attribution: TILE_ATTRIBUTION
+    maxZoom: 19
   }).addTo(map)
 
   renderRecords()
@@ -118,6 +117,19 @@ watch(validRecords, renderRecords, { deep: true })
   border-radius: 6px;
   overflow: hidden;
   background: #eef2f6;
+}
+
+.map-attribution {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 500;
+  padding: 1px 5px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  line-height: 1.4;
+  pointer-events: none;
 }
 
 .map-empty {
