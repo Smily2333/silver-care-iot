@@ -1,5 +1,6 @@
 const { getOverview, updateOwnerName, getLatestFallAlert } = require('../../utils/api')
 const { getDemoOverview, getDemoLatestAlert, isDemoMode, demoDeviceNo } = require('../../utils/demo')
+const { enableSharing, getShareAppMessage, getShareTimeline } = require('../../utils/share')
 
 Page({
   data: {
@@ -22,11 +23,20 @@ Page({
   },
 
   onLoad(options) {
+    enableSharing()
     const demo = isDemoMode(options)
     const deviceNo = demo ? demoDeviceNo : (options.deviceNo || '')
     this.setData({ deviceNo, demo })
     wx.setNavigationBarTitle({ title: demo ? '守护中心（示例）' : deviceNo })
     this.load(deviceNo)
+  },
+
+  onShareAppMessage() {
+    return getShareAppMessage()
+  },
+
+  onShareTimeline() {
+    return getShareTimeline()
   },
 
   onShow() {

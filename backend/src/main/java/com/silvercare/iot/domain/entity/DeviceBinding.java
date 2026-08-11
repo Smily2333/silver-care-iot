@@ -8,13 +8,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "device_bindings", indexes = {
-        @Index(name = "idx_device_bindings_device", columnList = "deviceId", unique = true),
+        @Index(name = "idx_device_bindings_device", columnList = "deviceId"),
         @Index(name = "idx_device_bindings_user", columnList = "userId")
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uk_device_bindings_user_device", columnNames = {"userId", "deviceId"})
 })
 public class DeviceBinding {
 

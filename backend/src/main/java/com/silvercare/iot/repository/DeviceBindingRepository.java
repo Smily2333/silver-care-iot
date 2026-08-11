@@ -7,7 +7,11 @@ import java.util.Optional;
 
 public interface DeviceBindingRepository extends JpaRepository<DeviceBinding, Long> {
 
-    Optional<DeviceBinding> findByDeviceId(Long deviceId);
+    Optional<DeviceBinding> findByUserIdAndDeviceId(Long userId, Long deviceId);
 
     boolean existsByUserIdAndDeviceId(Long userId, Long deviceId);
+
+    long countByUserId(Long userId);
+
+    long countByDeviceId(Long deviceId);
 }

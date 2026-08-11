@@ -1,5 +1,6 @@
 const { getLocationRecords } = require('../../utils/api')
 const { getDemoLocationRecords, isDemoMode, demoDeviceNo } = require('../../utils/demo')
+const { enableSharing, getShareAppMessage, getShareTimeline } = require('../../utils/share')
 
 Page({
   data: {
@@ -15,6 +16,7 @@ Page({
   },
 
   onLoad(options) {
+    enableSharing()
     const demo = isDemoMode(options)
     const deviceNo = demo ? demoDeviceNo : (options.deviceNo || '')
     const lat = Number(options.lat)
@@ -23,6 +25,14 @@ Page({
     this.setData({ deviceNo, demo, focusPoint })
     wx.setNavigationBarTitle({ title: demo ? '位置记录（示例）' : '位置记录' })
     this.load(deviceNo)
+  },
+
+  onShareAppMessage() {
+    return getShareAppMessage()
+  },
+
+  onShareTimeline() {
+    return getShareTimeline()
   },
 
   onPullDownRefresh() {

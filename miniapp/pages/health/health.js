@@ -1,5 +1,6 @@
 const { getHealthRecords } = require('../../utils/api')
 const { getDemoHealthRecords, isDemoMode, demoDeviceNo } = require('../../utils/demo')
+const { enableSharing, getShareAppMessage, getShareTimeline } = require('../../utils/share')
 
 Page({
   data: {
@@ -11,11 +12,20 @@ Page({
   },
 
   onLoad(options) {
+    enableSharing()
     const demo = isDemoMode(options)
     const deviceNo = demo ? demoDeviceNo : (options.deviceNo || '')
     this.setData({ deviceNo, demo })
     wx.setNavigationBarTitle({ title: demo ? '健康趋势（示例）' : '健康趋势' })
     this.load(deviceNo)
+  },
+
+  onShareAppMessage() {
+    return getShareAppMessage()
+  },
+
+  onShareTimeline() {
+    return getShareTimeline()
   },
 
   onPullDownRefresh() {

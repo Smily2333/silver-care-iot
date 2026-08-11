@@ -1,4 +1,6 @@
 const { bindDevice, getOverview, getLatestFallAlert } = require('../../utils/api')
+const { enableSharing, getShareAppMessage, getShareTimeline } = require('../../utils/share')
+const MAX_RECENT_DEVICES = 4
 
 Page({
   data: {
@@ -16,7 +18,16 @@ Page({
   },
 
   onLoad() {
+    enableSharing()
     this._loadRecent()
+  },
+
+  onShareAppMessage() {
+    return getShareAppMessage()
+  },
+
+  onShareTimeline() {
+    return getShareTimeline()
   },
 
   onShow() {
@@ -194,7 +205,7 @@ Page({
     const raw = wx.getStorageSync('recentDevices') || []
     const recent = raw.map(item =>
       typeof item === 'string' ? { deviceNo: item, ownerName: '' } : item
-    ).filter(item => item && item.deviceNo)
+    ).filter(item => item && item.deviceNo).slice(0, MAX_RECENT_DEVICES)
     const displayList = this._withDisplay(recent)
     this.setData({
       recentList: displayList,
@@ -210,7 +221,8 @@ Page({
     list = list.map(item =>
       typeof item === 'string' ? { deviceNo: item, ownerName: '' } : item
     )
-    list = [{ deviceNo: no, ownerName: ownerName || '' }, ...list.filter(item => item.deviceNo !== no)].slice(0, 5)
+    list = [{ deviceNo: no, ownerName: ownerName || '' }, ...list.filter(item => item.deviceNo !== no)]
+      .slice(0, MAX_RECENT_DEVICES)
     wx.setStorageSync('recentDevices', list)
     this._loadRecent()
   },

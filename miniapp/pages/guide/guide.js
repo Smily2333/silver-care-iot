@@ -1,4 +1,18 @@
+const { enableSharing, getShareAppMessage, getShareTimeline } = require('../../utils/share')
+
 Page({
+  onLoad() {
+    enableSharing()
+  },
+
+  onShareAppMessage() {
+    return getShareAppMessage()
+  },
+
+  onShareTimeline() {
+    return getShareTimeline()
+  },
+
   enterDemo() {
     wx.navigateTo({ url: '/pages/overview/overview?demo=1' })
   },

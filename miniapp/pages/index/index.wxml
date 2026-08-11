@@ -104,7 +104,7 @@
       <view class="binding-head">
         <view>
           <text class="binding-title">绑定智能手表</text>
-          <text class="binding-sub">输入手表背面或包装上的设备编号</text>
+          <text class="binding-sub">输入手表背面或包装上的设备编号，每个微信最多绑定4台</text>
         </view>
         <text class="close-binding" bindtap="cancelBinding">关闭</text>
       </view>
