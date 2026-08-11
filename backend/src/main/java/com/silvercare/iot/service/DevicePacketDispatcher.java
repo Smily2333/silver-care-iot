@@ -62,6 +62,10 @@ public class DevicePacketDispatcher {
                     healthDataService.saveBloodPressureHeartRate(device, frame, packetLog.getId());
                     sendAck(frame, connection);
                 }
+                case "oxygen" -> {
+                    healthDataService.saveOxygen(device, frame, packetLog.getId());
+                    sendAck(frame, connection);
+                }
                 case "UD", "UD2", "UD_LTE", "UD_WCDMA", "UD_TDSCDMA", "UD_CDMA" ->
                         saveLocationAndTelemetry(device, frame, packetLog);
                 case "AL", "AL_LTE", "AL_WCDMA", "AL_TDSCDMA", "AL_CDMA" -> {

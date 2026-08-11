@@ -7,7 +7,7 @@
 | 动作 | 命令 | 真机结果 | 启用值 |
 |---|---|---|---|
 | 立即定位 | `CR` | 约 9 秒后上报 `UD_LTE`；室内 GPS 无效时仍会返回状态 | `LOCATE_NOW` |
-| 测量心率 | `hrtstart,1` | 约 34 秒后上报血压/心率，随后上报 `oxygen`；未佩戴时均为 0 | `MEASURE_HEART_RATE` |
+| 测量心率 | `hrtstart,1` | 约 34 秒后上报血压/心率，约 65 秒后上报 `oxygen`；未佩戴时均为 0 | `MEASURE_HEART_RATE` |
 | 测量体温 | `bodytemp2` | 约 22 秒后上报 `btemp2`；未佩戴也可能返回正常区间温度 | `MEASURE_TEMPERATURE` |
 
 确认后将对应枚举加入：
@@ -23,7 +23,6 @@ SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS=true
 ## 暂未实现/启用
 
 - `terminalStatus` 的可靠佩戴状态来源；
-- `oxygen` 独立入库和有效性展示；
 - 组合“立即健康检测”的串行间隔和完成规则；
 - 主动血压测量命令；
 - `AL` 精确分类、跌倒去重和通知渠道；

@@ -17,4 +17,6 @@ public interface HealthRecordRepository extends JpaRepository<HealthRecord, Long
     Optional<HealthRecord> findFirstByDeviceIdAndSystolicPressureIsNotNullAndDiastolicPressureIsNotNullOrderByMeasuredAtDesc(Long deviceId);
 
     Optional<HealthRecord> findFirstByDeviceIdAndBodyTemperatureIsNotNullOrderByMeasuredAtDesc(Long deviceId);
+
+    Optional<HealthRecord> findFirstByDeviceIdAndOxygenSaturationIsNotNullOrderByMeasuredAtDesc(Long deviceId);
 }

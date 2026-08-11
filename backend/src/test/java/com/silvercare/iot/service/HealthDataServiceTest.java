@@ -35,6 +35,22 @@ class HealthDataServiceTest {
         assertThat(record.getBloodPressureStatus()).isEqualTo(HealthMeasurementStatus.INVALID);
     }
 
+    @Test
+    void oxygenUsesTheSecondMeasurementField() {
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        HealthRecord record = service.saveOxygen(new Device(), frame("oxygen,0,99"), 3L);
+        assertThat(record.getOxygenSaturation()).isEqualTo(99);
+        assertThat(record.getOxygenStatus()).isEqualTo(HealthMeasurementStatus.VALID);
+    }
+
+    @Test
+    void zeroOxygenIsStoredAsInvalidWithoutExposingAValue() {
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        HealthRecord record = service.saveOxygen(new Device(), frame("oxygen,0,0"), 4L);
+        assertThat(record.getOxygenSaturation()).isNull();
+        assertThat(record.getOxygenStatus()).isEqualTo(HealthMeasurementStatus.INVALID);
+    }
+
     private ProtocolFrame frame(String content) {
         String command = content.substring(0, content.indexOf(','));
         return new ProtocolFrame("3G", "DEV001", "0000", content, command, "");

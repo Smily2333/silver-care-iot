@@ -40,6 +40,11 @@
           <text class="metric-big-val">{{latestMetrics.temperature != null ? latestMetrics.temperature : '--'}}</text>
           <text class="metric-big-unit">℃ 体温</text>
         </view>
+        <view class="metric-big-item oxygen-item">
+          <view class="metric-big-icon">🫁</view>
+          <text class="metric-big-val">{{latestMetrics.oxygen != null ? latestMetrics.oxygen : '--'}}</text>
+          <text class="metric-big-unit">% 血氧</text>
+        </view>
       </view>
     </view>
 
@@ -72,6 +77,10 @@
             <view wx:if="{{item.bodyTemperature != null}}" class="record-tag temp-tag">
               <text class="tag-icon">🌡</text>
               <text>{{item.bodyTemperature}}℃</text>
+            </view>
+            <view wx:if="{{item.oxygenSaturation != null}}" class="record-tag oxygen-tag">
+              <text class="tag-icon">◉</text>
+              <text>{{item.oxygenSaturation}}%</text>
             </view>
           </view>
         </view>

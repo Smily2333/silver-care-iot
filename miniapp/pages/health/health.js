@@ -8,7 +8,7 @@ Page({
     demo: false,
     loading: true,
     records: [],
-    latestMetrics: { heartRate: null, systolic: null, diastolic: null, temperature: null },
+    latestMetrics: { heartRate: null, systolic: null, diastolic: null, temperature: null, oxygen: null },
     errorMsg: ''
   },
 
@@ -45,13 +45,15 @@ Page({
         const heart = formatted.find(r => r.heartRate != null)
         const pressure = formatted.find(r => r.systolicPressure != null && r.diastolicPressure != null)
         const temperature = formatted.find(r => r.bodyTemperature != null)
+        const oxygen = formatted.find(r => r.oxygenSaturation != null)
         this.setData({
           records: formatted,
           latestMetrics: {
             heartRate: heart?.heartRate ?? null,
             systolic: pressure?.systolicPressure ?? null,
             diastolic: pressure?.diastolicPressure ?? null,
-            temperature: temperature?.bodyTemperature ?? null
+            temperature: temperature?.bodyTemperature ?? null,
+            oxygen: oxygen?.oxygenSaturation ?? null
           }
         })
       })

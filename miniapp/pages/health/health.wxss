@@ -59,12 +59,13 @@ page {
 /* 最新数据大展示 */
 .latest-metrics {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 16rpx;
 }
 
 .metric-big-item {
-  flex: 1;
+  flex: 1 1 40%;
   border-radius: 20rpx;
   padding: 24rpx 16rpx;
   display: flex;
@@ -86,6 +87,11 @@ page {
 .temp-item {
   background: rgba(255, 159, 64, 0.18);
   border: 1rpx solid rgba(255, 159, 64, 0.3);
+}
+
+.oxygen-item {
+  background: rgba(66, 211, 146, 0.18);
+  border: 1rpx solid rgba(66, 211, 146, 0.3);
 }
 
 .metric-big-icon {
@@ -184,6 +190,11 @@ page {
 .temp-tag {
   background: rgba(255, 159, 64, 0.08);
   color: #ff9f40;
+}
+
+.oxygen-tag {
+  background: rgba(66, 211, 146, 0.08);
+  color: #20a86b;
 }
 
 .tag-icon {

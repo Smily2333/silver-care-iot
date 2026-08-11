@@ -62,6 +62,7 @@ current production database:
 ```bash
 mysql --user=silvercare --password --database=silver_care < deploy/mysql/2026-08-11-location-address.sql
 mysql --user=silvercare --password --database=silver_care < deploy/mysql/2026-08-11-health-monitoring.sql
+mysql --user=silvercare --password --database=silver_care < deploy/mysql/2026-08-11-blood-oxygen.sql
 ```
 
 For development, do not run those commands against `silver_care`; the `dev` profile updates

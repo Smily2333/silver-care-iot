@@ -68,6 +68,11 @@
             <strong>{{ healthSummary.temperature?.value ?? '—' }} <small>℃</small></strong>
             <em>{{ metricHint(healthSummary.temperature) }}</em>
           </div>
+          <div class="metric-card">
+            <span>血氧</span>
+            <strong>{{ healthSummary.oxygenSaturation?.value ?? '—' }} <small>%</small></strong>
+            <em>{{ metricHint(healthSummary.oxygenSaturation) }}</em>
+          </div>
         </div>
         <el-table
           v-else
@@ -91,6 +96,9 @@
           </el-table-column>
           <el-table-column label="体温 (℃)" width="110">
             <template #default="{ row }">{{ row.bodyTemperature ?? '—' }}</template>
+          </el-table-column>
+          <el-table-column label="血氧 (%)" width="100">
+            <template #default="{ row }">{{ row.oxygenSaturation ?? '—' }}</template>
           </el-table-column>
           <el-table-column label="来源" width="100">
             <template #default="{ row }">{{ row.sourceCommand || '—' }}</template>
@@ -224,7 +232,7 @@ function statusText(status) {
 }
 
 function recordStatus(row) {
-  const statuses = [row.heartRateStatus, row.bloodPressureStatus, row.temperatureStatus].filter(Boolean)
+  const statuses = [row.heartRateStatus, row.bloodPressureStatus, row.temperatureStatus, row.oxygenStatus].filter(Boolean)
   if (!statuses.length) return '历史数据（未分类）'
   return [...new Set(statuses.map(statusText))].join('、')
 }
@@ -240,7 +248,7 @@ onMounted(loadDevice)
 <style scoped>
 .health-summary {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   margin-top: 12px;
 }

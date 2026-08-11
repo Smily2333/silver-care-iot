@@ -8,7 +8,8 @@ import java.time.Instant;
 public record AdminHealthSummaryResponse(
         Metric<Integer> heartRate,
         BloodPressureMetric bloodPressure,
-        Metric<BigDecimal> temperature
+        Metric<BigDecimal> temperature,
+        Metric<Integer> oxygenSaturation
 ) {
     public record Metric<T>(T value, Instant measuredAt, HealthMeasurementStatus status, String freshness) {}
 

@@ -71,6 +71,20 @@ public class HealthDataService {
         return saved;
     }
 
+    public HealthRecord saveOxygen(Device device, ProtocolFrame frame, Long rawPacketId) {
+        String[] args = split(frame.content());
+        HealthRecord record = baseRecord(device, frame, rawPacketId);
+        Integer oxygen = parseInt(args, 2);
+        HealthMeasurementStatus status = oxygenStatus(oxygen);
+        record.setOxygenStatus(status);
+        if (status == HealthMeasurementStatus.INVALID) {
+            record.setInvalidReason("血氧值缺失或为 0");
+        } else {
+            record.setOxygenSaturation(oxygen);
+        }
+        return repository.save(record);
+    }
+
     private HealthRecord baseRecord(Device device, ProtocolFrame frame, Long rawPacketId) {
         HealthRecord record = new HealthRecord();
         record.setDeviceId(device.getId());
@@ -99,6 +113,13 @@ public class HealthDataService {
         }
         if (systolic < 60 || diastolic < 30) return HealthMeasurementStatus.TOO_LOW;
         if (systolic > 260 || diastolic > 180) return HealthMeasurementStatus.TOO_HIGH;
+        return HealthMeasurementStatus.VALID;
+    }
+
+    private HealthMeasurementStatus oxygenStatus(Integer value) {
+        if (value == null || value <= 0) return HealthMeasurementStatus.INVALID;
+        if (value < 70) return HealthMeasurementStatus.TOO_LOW;
+        if (value > 100) return HealthMeasurementStatus.TOO_HIGH;
         return HealthMeasurementStatus.VALID;
     }
 

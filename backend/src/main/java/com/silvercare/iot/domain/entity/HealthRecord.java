@@ -28,6 +28,7 @@ public class HealthRecord {
     private Integer weightKg;
     private Integer temperatureType;
     private BigDecimal bodyTemperature;
+    private Integer oxygenSaturation;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 16)
@@ -40,6 +41,10 @@ public class HealthRecord {
     @Enumerated(EnumType.STRING)
     @Column(length = 16)
     private HealthMeasurementStatus temperatureStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private HealthMeasurementStatus oxygenStatus;
 
     @Column(length = 255)
     private String invalidReason;
@@ -103,6 +108,10 @@ public class HealthRecord {
         return bodyTemperature;
     }
 
+    public Integer getOxygenSaturation() {
+        return oxygenSaturation;
+    }
+
     public HealthMeasurementStatus getHeartRateStatus() {
         return heartRateStatus;
     }
@@ -113,6 +122,10 @@ public class HealthRecord {
 
     public HealthMeasurementStatus getTemperatureStatus() {
         return temperatureStatus;
+    }
+
+    public HealthMeasurementStatus getOxygenStatus() {
+        return oxygenStatus;
     }
 
     public String getInvalidReason() {
@@ -167,6 +180,10 @@ public class HealthRecord {
         this.bodyTemperature = bodyTemperature;
     }
 
+    public void setOxygenSaturation(Integer oxygenSaturation) {
+        this.oxygenSaturation = oxygenSaturation;
+    }
+
     public void setHeartRateStatus(HealthMeasurementStatus heartRateStatus) {
         this.heartRateStatus = heartRateStatus;
     }
@@ -177,6 +194,10 @@ public class HealthRecord {
 
     public void setTemperatureStatus(HealthMeasurementStatus temperatureStatus) {
         this.temperatureStatus = temperatureStatus;
+    }
+
+    public void setOxygenStatus(HealthMeasurementStatus oxygenStatus) {
+        this.oxygenStatus = oxygenStatus;
     }
 
     public void setInvalidReason(String invalidReason) {

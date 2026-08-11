@@ -25,6 +25,7 @@ public class HealthSummaryService {
         HealthRecord heart = repository.findFirstByDeviceIdAndHeartRateIsNotNullOrderByMeasuredAtDesc(deviceId).orElse(null);
         HealthRecord pressure = repository.findFirstByDeviceIdAndSystolicPressureIsNotNullAndDiastolicPressureIsNotNullOrderByMeasuredAtDesc(deviceId).orElse(null);
         HealthRecord temperature = repository.findFirstByDeviceIdAndBodyTemperatureIsNotNullOrderByMeasuredAtDesc(deviceId).orElse(null);
+        HealthRecord oxygen = repository.findFirstByDeviceIdAndOxygenSaturationIsNotNullOrderByMeasuredAtDesc(deviceId).orElse(null);
         return new AdminHealthSummaryResponse(
                 heart == null ? null : new AdminHealthSummaryResponse.Metric<>(
                         heart.getHeartRate(), heart.getMeasuredAt(), heart.getHeartRateStatus(), freshness(heart.getMeasuredAt())),
@@ -33,7 +34,10 @@ public class HealthSummaryService {
                         pressure.getBloodPressureStatus(), freshness(pressure.getMeasuredAt())),
                 temperature == null ? null : new AdminHealthSummaryResponse.Metric<>(
                         temperature.getBodyTemperature(), temperature.getMeasuredAt(), temperature.getTemperatureStatus(),
-                        freshness(temperature.getMeasuredAt()))
+                        freshness(temperature.getMeasuredAt())),
+                oxygen == null ? null : new AdminHealthSummaryResponse.Metric<>(
+                        oxygen.getOxygenSaturation(), oxygen.getMeasuredAt(), oxygen.getOxygenStatus(),
+                        freshness(oxygen.getMeasuredAt()))
         );
     }
 

@@ -28,9 +28,9 @@ export function getDemoOverview() {
 
 export function getDemoHealthRecords() {
   return [
-    { id: 'demo-health-1', heartRate: 76, systolicPressure: 122, diastolicPressure: 78, bodyTemperature: 36.5, measuredAt: isoMinutesAgo(8) },
-    { id: 'demo-health-2', heartRate: 72, systolicPressure: 119, diastolicPressure: 76, bodyTemperature: 36.4, measuredAt: isoMinutesAgo(68) },
-    { id: 'demo-health-3', heartRate: 79, systolicPressure: 124, diastolicPressure: 80, bodyTemperature: 36.6, measuredAt: isoMinutesAgo(188) }
+    { id: 'demo-health-1', heartRate: 76, systolicPressure: 122, diastolicPressure: 78, bodyTemperature: 36.5, oxygenSaturation: 98, measuredAt: isoMinutesAgo(8) },
+    { id: 'demo-health-2', heartRate: 72, systolicPressure: 119, diastolicPressure: 76, bodyTemperature: 36.4, oxygenSaturation: 97, measuredAt: isoMinutesAgo(68) },
+    { id: 'demo-health-3', heartRate: 79, systolicPressure: 124, diastolicPressure: 80, bodyTemperature: 36.6, oxygenSaturation: 98, measuredAt: isoMinutesAgo(188) }
   ]
 }
 
