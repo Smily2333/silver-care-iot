@@ -28,11 +28,6 @@ public class NominatimClient {
                 .build();
     }
 
-    NominatimClient(GeocodingProperties properties, RestClient restClient) {
-        this.properties = properties;
-        this.restClient = restClient;
-    }
-
     public Optional<AddressResult> reverse(BigDecimal latitude, BigDecimal longitude) {
         JsonNode response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
