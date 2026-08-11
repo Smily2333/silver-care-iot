@@ -31,3 +31,11 @@ silver-care:
   device-actions:
     confirmed-types: ${SILVER_CARE_PROD_CONFIRMED_DEVICE_ACTIONS:}
     allow-health-without-wear-status: ${SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS:false}
+  automatic-monitoring:
+    enabled: ${SILVER_CARE_PROD_AUTOMATIC_MONITORING_ENABLED:true}
+    heart-rate-interval-minutes: ${SILVER_CARE_PROD_HEART_RATE_INTERVAL_MINUTES:60}
+    temperature-interval-minutes: ${SILVER_CARE_PROD_TEMPERATURE_INTERVAL_MINUTES:240}
+    temperature-wear-evidence-minutes: ${SILVER_CARE_PROD_TEMPERATURE_WEAR_EVIDENCE_MINUTES:10}
+    location-upload-seconds: ${SILVER_CARE_PROD_LOCATION_UPLOAD_SECONDS:600}
+    location-reapply-hours: ${SILVER_CARE_PROD_LOCATION_REAPPLY_HOURS:24}
+    minimum-battery-percent: ${SILVER_CARE_PROD_MINIMUM_BATTERY_PERCENT:20}

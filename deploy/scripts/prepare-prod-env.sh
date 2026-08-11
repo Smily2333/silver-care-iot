@@ -30,6 +30,7 @@ printf '%s\n' \
   'SILVER_CARE_PROD_GEOCODING_ENABLED=false' \
   'SILVER_CARE_PROD_CONFIRMED_DEVICE_ACTIONS=' \
   'SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS=false' \
+  'SILVER_CARE_PROD_AUTOMATIC_MONITORING_ENABLED=false' \
   >> "$target_file"
 
 echo "Created $target_file with production-only variable names; the active service was not changed."

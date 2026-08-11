@@ -13,7 +13,7 @@
 确认后将对应枚举加入：
 
 ```text
-SILVER_CARE_PROD_CONFIRMED_DEVICE_ACTIONS=LOCATE_NOW,MEASURE_HEART_RATE,MEASURE_TEMPERATURE
+SILVER_CARE_PROD_CONFIRMED_DEVICE_ACTIONS=LOCATE_NOW,MEASURE_HEART_RATE,MEASURE_TEMPERATURE,CONFIGURE_LOCATION_INTERVAL
 SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS=true
 ```
 
@@ -26,9 +26,13 @@ SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS=true
 - `oxygen` 独立入库和有效性展示；
 - 组合“立即健康检测”的串行间隔和完成规则；
 - 主动血压测量命令；
-- `UPLOAD` 定时位置策略及静止行为；
 - `AL` 精确分类、跌倒去重和通知渠道；
-- 心率、体温定时调度策略。
+
+## 自动监测策略
+
+生产环境默认启用保守频率：移动时每 600 秒上传一次位置，心率/血压/血氧每 60 分钟测量一次，体温每 240 分钟测量一次。电量低于 20% 时暂停自动指令。
+
+由于固件没有可靠佩戴位，自动体温仅在最近 10 分钟存在有效心率结果时触发。所有频率均可通过 `SILVER_CARE_PROD_*` 环境变量调整。
 
 ## 请回填的样本
 

@@ -14,6 +14,10 @@ public interface DeviceActionRepository extends JpaRepository<DeviceAction, Long
     List<DeviceAction> findTop20ByDeviceIdOrderByRequestedAtDesc(Long deviceId);
     Optional<DeviceAction> findFirstByDeviceIdAndActionTypeAndStatusInOrderByRequestedAtDesc(
             Long deviceId, DeviceActionType actionType, Collection<DeviceActionStatus> statuses);
+    Optional<DeviceAction> findFirstByDeviceIdAndStatusInOrderByRequestedAtDesc(
+            Long deviceId, Collection<DeviceActionStatus> statuses);
+    Optional<DeviceAction> findFirstByDeviceIdAndActionTypeOrderByRequestedAtDesc(
+            Long deviceId, DeviceActionType actionType);
     Optional<DeviceAction> findFirstByDeviceIdAndCommandNameAndStatusInOrderByRequestedAtDesc(
             Long deviceId, String commandName, Collection<DeviceActionStatus> statuses);
     List<DeviceAction> findByDeadlineAtBeforeAndStatusIn(Instant deadline, Collection<DeviceActionStatus> statuses);

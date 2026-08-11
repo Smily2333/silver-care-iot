@@ -31,3 +31,5 @@ silver-care:
   device-actions:
     confirmed-types: ${SILVER_CARE_DEV_CONFIRMED_DEVICE_ACTIONS:}
     allow-health-without-wear-status: ${SILVER_CARE_DEV_ALLOW_HEALTH_WITHOUT_WEAR_STATUS:false}
+  automatic-monitoring:
+    enabled: ${SILVER_CARE_DEV_AUTOMATIC_MONITORING_ENABLED:false}

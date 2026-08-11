@@ -51,9 +51,9 @@ public class DeviceActionService {
         if (!capability.enabled()) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, capability.reason());
         }
-        repository.findFirstByDeviceIdAndActionTypeAndStatusInOrderByRequestedAtDesc(deviceId, type, ACTIVE)
+        repository.findFirstByDeviceIdAndStatusInOrderByRequestedAtDesc(deviceId, ACTIVE)
                 .ifPresent(existing -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "同类型操作正在执行中");
+                    throw new ResponseStatusException(HttpStatus.CONFLICT, "设备已有操作正在执行中");
                 });
         DeviceCommandCatalog.Definition definition = catalog.find(type).orElseThrow();
         DeviceAction action = new DeviceAction();
@@ -104,8 +104,14 @@ public class DeviceActionService {
         repository.findFirstByDeviceIdAndCommandNameAndStatusInOrderByRequestedAtDesc(
                 device.getId(), commandName, EnumSet.of(DeviceActionStatus.SENT))
                 .ifPresent(action -> {
-                    action.setStatus(DeviceActionStatus.ACKNOWLEDGED);
                     action.setAcknowledgedAt(Instant.now());
+                    DeviceCommandCatalog.Definition definition = catalog.find(action.getActionType()).orElseThrow();
+                    if (definition.completesOnAck()) {
+                        action.setStatus(DeviceActionStatus.COMPLETED);
+                        action.setCompletedAt(Instant.now());
+                    } else {
+                        action.setStatus(DeviceActionStatus.ACKNOWLEDGED);
+                    }
                 });
     }
 

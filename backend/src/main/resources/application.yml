@@ -29,3 +29,11 @@ silver-care:
     locate-timeout-seconds: 120
     health-timeout-seconds: 180
     timeout-scan-millis: 10000
+  automatic-monitoring:
+    scan-millis: 60000
+    heart-rate-interval-minutes: 60
+    temperature-interval-minutes: 240
+    temperature-wear-evidence-minutes: 10
+    location-upload-seconds: 600
+    location-reapply-hours: 24
+    minimum-battery-percent: 20

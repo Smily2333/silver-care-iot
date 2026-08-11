@@ -1,6 +1,7 @@
 package com.silvercare.iot.service;
 
 import com.silvercare.iot.config.DeviceActionProperties;
+import com.silvercare.iot.config.AutomaticMonitoringProperties;
 import com.silvercare.iot.domain.DeviceActionStatus;
 import com.silvercare.iot.domain.DeviceActionType;
 import com.silvercare.iot.domain.DeviceStatus;
@@ -28,7 +29,8 @@ class DeviceActionServiceTest {
     private final DeviceRepository deviceRepository = mock(DeviceRepository.class);
     private final DeviceConnectionRegistry registry = mock(DeviceConnectionRegistry.class);
     private final DeviceActionProperties properties = new DeviceActionProperties();
-    private final DeviceCommandCatalog catalog = new DeviceCommandCatalog(properties);
+    private final AutomaticMonitoringProperties monitoringProperties = new AutomaticMonitoringProperties();
+    private final DeviceCommandCatalog catalog = new DeviceCommandCatalog(properties, monitoringProperties);
     private final DeviceActionService service = new DeviceActionService(
             repository, deviceRepository, registry, catalog, properties);
 
@@ -70,6 +72,25 @@ class DeviceActionServiceTest {
         assertThat(service.capabilities(1L).stream()
                 .filter(item -> item.type() == DeviceActionType.MEASURE_HEART_RATE).findFirst().orElseThrow().reason())
                 .contains("佩戴状态位待确认");
+    }
+
+    @Test
+    void locationIntervalConfigurationCompletesOnAcknowledgement() {
+        Device device = device();
+        DeviceAction action = new DeviceAction();
+        action.setDeviceId(1L);
+        action.setActionType(DeviceActionType.CONFIGURE_LOCATION_INTERVAL);
+        action.setCommandName("UPLOAD");
+        action.setCommandContent("UPLOAD,600");
+        action.setStatus(DeviceActionStatus.SENT);
+        when(repository.findFirstByDeviceIdAndCommandNameAndStatusInOrderByRequestedAtDesc(
+                any(), any(), any())).thenReturn(Optional.of(action));
+
+        service.acknowledge(device, "UPLOAD");
+
+        assertThat(action.getStatus()).isEqualTo(DeviceActionStatus.COMPLETED);
+        assertThat(action.getAcknowledgedAt()).isNotNull();
+        assertThat(action.getCompletedAt()).isNotNull();
     }
 
     private Device device() {
