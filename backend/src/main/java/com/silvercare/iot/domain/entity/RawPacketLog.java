@@ -31,10 +31,11 @@ public class RawPacketLog {
     private String lenHex;
 
     @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String content;
 
     @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String rawPacket;
 
     @Enumerated(EnumType.STRING)
