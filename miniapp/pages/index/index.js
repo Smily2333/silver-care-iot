@@ -244,7 +244,7 @@ Page({
       statusText: '同步中',
       batteryText: '--',
       stepText: '--',
-      lastSyncText: '正在获取设备状态',
+      lastOnlineText: '正在获取设备状态',
       healthValue: '--',
       healthHint: '健康趋势',
       locationValue: '--',
@@ -271,7 +271,9 @@ Page({
       statusText: device.status === 'ONLINE' ? '在线' : '离线',
       batteryText: device.batteryLevel != null ? `${device.batteryLevel}%` : '--',
       stepText: device.stepCount != null ? String(device.stepCount) : '--',
-      lastSyncText: device.lastHeartbeatAt ? `最后同步 ${this._relativeTime(device.lastHeartbeatAt)}` : '暂无同步时间',
+      lastOnlineText: device.lastOnlineAt
+        ? `设备最后在线时间：${this._relativeTime(device.lastOnlineAt)}`
+        : '暂无在线时间',
       healthValue: health?.heartRate != null ? `${health.heartRate} bpm` : '--',
       healthHint: health?.measuredAt ? this._relativeTime(health.measuredAt) : '暂无健康数据',
       locationValue: location ? '已定位' : '--',

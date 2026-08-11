@@ -1,5 +1,6 @@
 package com.silvercare.iot.domain.entity;
 
+import com.silvercare.iot.domain.HealthMeasurementStatus;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -27,6 +28,21 @@ public class HealthRecord {
     private Integer weightKg;
     private Integer temperatureType;
     private BigDecimal bodyTemperature;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private HealthMeasurementStatus heartRateStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private HealthMeasurementStatus bloodPressureStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private HealthMeasurementStatus temperatureStatus;
+
+    @Column(length = 255)
+    private String invalidReason;
 
     @Column(nullable = false, length = 32)
     private String sourceCommand;
@@ -87,6 +103,22 @@ public class HealthRecord {
         return bodyTemperature;
     }
 
+    public HealthMeasurementStatus getHeartRateStatus() {
+        return heartRateStatus;
+    }
+
+    public HealthMeasurementStatus getBloodPressureStatus() {
+        return bloodPressureStatus;
+    }
+
+    public HealthMeasurementStatus getTemperatureStatus() {
+        return temperatureStatus;
+    }
+
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
     public String getSourceCommand() {
         return sourceCommand;
     }
@@ -133,6 +165,22 @@ public class HealthRecord {
 
     public void setBodyTemperature(BigDecimal bodyTemperature) {
         this.bodyTemperature = bodyTemperature;
+    }
+
+    public void setHeartRateStatus(HealthMeasurementStatus heartRateStatus) {
+        this.heartRateStatus = heartRateStatus;
+    }
+
+    public void setBloodPressureStatus(HealthMeasurementStatus bloodPressureStatus) {
+        this.bloodPressureStatus = bloodPressureStatus;
+    }
+
+    public void setTemperatureStatus(HealthMeasurementStatus temperatureStatus) {
+        this.temperatureStatus = temperatureStatus;
+    }
+
+    public void setInvalidReason(String invalidReason) {
+        this.invalidReason = invalidReason;
     }
 
     public void setSourceCommand(String sourceCommand) {

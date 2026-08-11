@@ -25,19 +25,19 @@
       <view class="latest-metrics" wx:if="{{records.length > 0}}">
         <view class="metric-big-item heart-item">
           <view class="metric-big-icon">❤️</view>
-          <text class="metric-big-val">{{records[0].heartRate != null ? records[0].heartRate : '--'}}</text>
+          <text class="metric-big-val">{{latestMetrics.heartRate != null ? latestMetrics.heartRate : '--'}}</text>
           <text class="metric-big-unit">bpm 心率</text>
         </view>
         <view class="metric-big-item bp-item">
           <view class="metric-big-icon">💉</view>
           <text class="metric-big-val bp-val">
-            {{records[0].systolicPressure != null ? records[0].systolicPressure + '/' + records[0].diastolicPressure : '--'}}
+            {{latestMetrics.systolic != null ? latestMetrics.systolic + '/' + latestMetrics.diastolic : '--'}}
           </text>
           <text class="metric-big-unit">mmHg 血压</text>
         </view>
         <view class="metric-big-item temp-item">
           <view class="metric-big-icon">🌡</view>
-          <text class="metric-big-val">{{records[0].bodyTemperature != null ? records[0].bodyTemperature : '--'}}</text>
+          <text class="metric-big-val">{{latestMetrics.temperature != null ? latestMetrics.temperature : '--'}}</text>
           <text class="metric-big-unit">℃ 体温</text>
         </view>
       </view>

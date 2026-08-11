@@ -1,21 +1,98 @@
-# Deployment checklist
+# Development and production deployment
+
+## Environment boundary
+
+The backend defaults to the `dev` Spring profile. Development uses `silver_care_dev`, runs JPA with
+`ddl-auto=update`, disables the device TCP gateway by default, and leaves every typed device command
+disabled. Local startup must never be given production environment variables. A startup guard requires
+development database names to end in `_dev`; the production profile rejects database names with that
+suffix and also rejects activating `dev` and `prod` together.
+
+Production must explicitly set:
+
+```text
+SPRING_PROFILES_ACTIVE=prod
+```
+
+The production profile uses the existing `silver_care` database, sets `ddl-auto=validate`, and has no
+fallback values for database credentials, administrator credentials, or the WeChat secret. A missing value
+therefore stops startup. Templates are tracked separately:
+
+- Development: `.env.example`
+- Production: `deploy/env/backend-prod.env.example`
+
+Create the local database once; JPA will maintain its development-only schema:
+
+```sql
+CREATE DATABASE silver_care_dev CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
 ## Required server settings
 
 Configure these environment variables before starting the backend. Never commit their real values.
 
 ```text
-SILVER_CARE_DB_URL
-SILVER_CARE_DB_USERNAME
-SILVER_CARE_DB_PASSWORD
-SILVER_CARE_ADMIN_USERNAME
-SILVER_CARE_ADMIN_PASSWORD
-WECHAT_MINIAPP_APPID
-WECHAT_MINIAPP_APP_SECRET
+SPRING_PROFILES_ACTIVE=prod
+SILVER_CARE_PROD_DB_URL
+SILVER_CARE_PROD_DB_USERNAME
+SILVER_CARE_PROD_DB_PASSWORD
+SILVER_CARE_PROD_ADMIN_USERNAME
+SILVER_CARE_PROD_ADMIN_PASSWORD
+WECHAT_MINIAPP_PROD_APPID
+WECHAT_MINIAPP_PROD_APP_SECRET
+SILVER_CARE_PROD_GEOCODING_ENABLED
+SILVER_CARE_PROD_NOMINATIM_BASE_URL
+SILVER_CARE_PROD_GEOCODING_BACKFILL_LIMIT
+SILVER_CARE_PROD_CONFIRMED_DEVICE_ACTIONS
+SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS
 ```
 
-`WECHAT_MINIAPP_APP_SECRET` is available in the WeChat mini program management console. It stays on the
+`WECHAT_MINIAPP_PROD_APP_SECRET` is available in the WeChat mini program management console. It stays on the
 server and must never be added to the mini program source code.
+
+Install `deploy/systemd/silver-care-iot.service` on the server and store the real production environment at
+`/etc/silver-care-iot/backend-prod.env` with file mode `600`. This keeps production secrets outside the
+repository and makes the active profile explicit on every restart.
+
+## Production database migrations
+
+Migration files no longer contain `USE silver_care`. Always select the target database explicitly. For the
+current production database:
+
+```bash
+mysql --user=silvercare --password --database=silver_care < deploy/mysql/2026-08-11-location-address.sql
+mysql --user=silvercare --password --database=silver_care < deploy/mysql/2026-08-11-health-monitoring.sql
+```
+
+For development, do not run those commands against `silver_care`; the `dev` profile updates
+`silver_care_dev` automatically.
+
+## Web and mini program quick switch
+
+Run one of these files from Windows Explorer or a terminal:
+
+```bat
+scripts\use-production.cmd
+scripts\use-development.cmd
+scripts\use-auto.cmd
+```
+
+The underlying command is also available directly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/switch-environment.ps1 production
+```
+
+The switch updates `web/.env.local` and `miniapp/environment.js` together:
+
+- `production`: Web's Vite proxy and the mini program both use `https://api.nkucare.cloud`.
+- `development`: Web and the mini program both use the local backend at `127.0.0.1:8080`.
+- `auto`: Web uses the local backend; mini program `develop` uses local while `trial` and `release` use
+  production.
+
+Restart `npm run dev` and recompile the mini program after switching. `web/.env.local` is ignored by Git.
+The selected mini program target remains visible in `miniapp/environment.js` so production access is never
+implicit.
 
 ## HTTPS and routing
 
@@ -46,16 +123,77 @@ protocol requires it.
 ## Mini program domain
 
 1. Add `https://api.nkucare.cloud` to the mini program request legal-domain list.
-2. Set the same HTTPS origin for `develop`, `trial`, and `release` in `miniapp/config.js`.
-3. Do not use the backend IP or plain HTTP in mini program builds.
+2. Use the environment switcher above. For local mode, disable domain validation only inside WeChat
+   Developer Tools.
+3. Production mode uses `https://api.nkucare.cloud`. Do not replace it with a backend IP.
 4. Upload an experience build and verify login, first binding, health data, location and fall alerts.
 
-## Web map tiles
+## Web map files and address lookup
 
-The Web client defaults to the public OpenStreetMap tile endpoint for development. Before commercial or
-high-volume use, configure `VITE_MAP_TILE_URL` and `VITE_MAP_TILE_ATTRIBUTION` for a compliant tile
-provider or a self-hosted tile service. The Web map uses the original WGS-84 coordinates; the mini program
-map uses the API's GCJ-02 display coordinates.
+The current low-volume internal production build uses the standard OpenStreetMap raster endpoint for
+interactive viewing only:
+
+```text
+VITE_MAP_MODE=raster
+VITE_MAP_RASTER_TILE_URL=https://tile.openstreetmap.org/{z}/{x}/{y}.png
+```
+
+Keep visible attribution, browser caching and the normal referrer. Do not add offline download, prefetch or
+bulk tile requests. The endpoint is best-effort and has no SLA, so self-hosted PMTiles remains the intended
+long-term production mode.
+
+Set `VITE_MAP_MODE=pmtiles` when the self-hosted archive is ready. The Web client then reads the basemap
+from `/maps/tianjin.pmtiles`. Keep the large map file,
+font glyphs, and sprites outside the Web build under `/var/lib/silver-care-maps`:
+
+```text
+/var/lib/silver-care-maps/
+  tianjin.pmtiles
+  assets/fonts/{fontstack}/{range}.pbf
+  assets/sprites/v4/light.json
+  assets/sprites/v4/light.png
+  assets/sprites/v4/light@2x.json
+  assets/sprites/v4/light@2x.png
+```
+
+Build the Web client with these settings when the deployed filenames differ:
+
+```text
+VITE_MAP_PMTILES_URL=/maps/tianjin-2026-08.pmtiles
+VITE_MAP_GLYPHS_URL=/maps/assets/fonts/{fontstack}/{range}.pbf
+VITE_MAP_SPRITE_URL=/maps/assets/sprites/v4/light
+```
+
+Verify that a request containing a `Range` header receives HTTP 206. Never scrape or bulk-download the
+public `tile.openstreetmap.org` endpoint to create this archive. Keep the visible OpenStreetMap attribution.
+
+The Web map uses original WGS-84 coordinates; the mini program map uses the API's GCJ-02 display
+coordinates.
+
+Run a private Nominatim instance for approximate address lookup, then configure:
+
+```text
+SILVER_CARE_PROD_GEOCODING_ENABLED=true
+SILVER_CARE_PROD_NOMINATIM_BASE_URL=http://127.0.0.1:7070
+SILVER_CARE_PROD_GEOCODING_USER_AGENT=SilverCare/0.1
+SILVER_CARE_PROD_GEOCODING_BACKFILL_LIMIT=100
+```
+
+Leave geocoding disabled until the private instance is ready. Device packet ingestion does not wait for
+address lookup; lookup failures only leave the address unavailable.
+
+## Device quick actions
+
+All typed device commands are disabled until their real-device exchange is confirmed. See
+`docs/protocol-verification.md`. Enable only verified actions, for example:
+
+```text
+SILVER_CARE_PROD_CONFIRMED_DEVICE_ACTIONS=LOCATE_NOW
+SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS=false
+```
+
+Do not enable heart-rate or temperature actions until the wear-status protocol has been confirmed, unless
+an authorised operator explicitly accepts the temporary override.
 
 ## First deployment after this change
 

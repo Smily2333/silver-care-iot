@@ -14,7 +14,7 @@
               <text class="status-tag {{primarySummary.online ? 'online' : 'offline'}}">{{primarySummary.statusText}}</text>
             </view>
             <text class="device-line">智能健康手表 · {{primarySummary.deviceNo}}</text>
-            <text class="sync-line">{{primarySummary.lastSyncText}}</text>
+            <text class="sync-line">{{primarySummary.lastOnlineText}}</text>
           </view>
           <text class="card-arrow">›</text>
         </view>
@@ -26,7 +26,7 @@
           <view class="stat-divider"></view>
           <view class="device-stat">
             <text class="stat-value">{{primarySummary.stepText}}</text>
-            <text class="stat-label">今日步数</text>
+            <text class="stat-label">每日步数</text>
           </view>
         </view>
         <view class="summary-error" wx:if="{{summaryError}}" catchtap="retrySummary">

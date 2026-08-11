@@ -1,0 +1,33 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${SILVER_CARE_PROD_DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${SILVER_CARE_PROD_DB_USERNAME}
+    password: ${SILVER_CARE_PROD_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+silver-care:
+  admin:
+    username: ${SILVER_CARE_PROD_ADMIN_USERNAME}
+    password: ${SILVER_CARE_PROD_ADMIN_PASSWORD}
+  gateway:
+    enabled: ${SILVER_CARE_PROD_GATEWAY_ENABLED:true}
+    port: ${SILVER_CARE_PROD_GATEWAY_PORT:9001}
+  wechat-miniapp:
+    app-id: ${WECHAT_MINIAPP_PROD_APPID}
+    app-secret: ${WECHAT_MINIAPP_PROD_APP_SECRET}
+    session-ttl-days: ${WECHAT_MINIAPP_PROD_SESSION_TTL_DAYS:30}
+  geocoding:
+    enabled: ${SILVER_CARE_PROD_GEOCODING_ENABLED:false}
+    base-url: ${SILVER_CARE_PROD_NOMINATIM_BASE_URL:http://127.0.0.1:7070}
+    user-agent: ${SILVER_CARE_PROD_GEOCODING_USER_AGENT:SilverCare/0.1}
+    backfill-limit: ${SILVER_CARE_PROD_GEOCODING_BACKFILL_LIMIT:100}
+  device-actions:
+    confirmed-types: ${SILVER_CARE_PROD_CONFIRMED_DEVICE_ACTIONS:}
+    allow-health-without-wear-status: ${SILVER_CARE_PROD_ALLOW_HEALTH_WITHOUT_WEAR_STATUS:false}

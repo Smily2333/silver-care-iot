@@ -9,8 +9,8 @@ Base URL: `http://localhost:8080`
 服务启动前必须通过环境变量配置凭证：
 
 ```bash
-SILVER_CARE_ADMIN_USERNAME=...
-SILVER_CARE_ADMIN_PASSWORD=...
+SILVER_CARE_PROD_ADMIN_USERNAME=...
+SILVER_CARE_PROD_ADMIN_PASSWORD=...
 ```
 
 ---
@@ -32,7 +32,7 @@ SILVER_CARE_ADMIN_PASSWORD=...
 | model | String | 型号 |
 | status | Enum | ONLINE / OFFLINE |
 | batteryLevel | Integer | 电量 |
-| stepCount | Integer | 步数 |
+| stepCount | Integer | 设备通过 LK 心跳或位置报文上报的每日计步值 |
 | lastOnlineAt | Instant | 最后在线时间 |
 | lastHeartbeatAt | Instant | 最后心跳时间 |
 
@@ -67,6 +67,24 @@ SILVER_CARE_ADMIN_PASSWORD=...
 
 查询该设备最新 100 条健康数据，返回 `List<HealthRecord>`。
 
+健康记录增加 `heartRateStatus`、`bloodPressureStatus`、`temperatureStatus` 和 `invalidReason`。
+设备失败状态值和数值 `0` 不再作为正常指标返回。
+
+### GET /api/admin/devices/{id}/health-summary
+
+分别返回最新有效心率、血压和体温，每项包含独立测量时间、测量状态和 `FRESH/STALE/UNKNOWN` 新鲜度。
+
+### 设备快捷动作
+
+```text
+POST /api/admin/devices/{id}/actions
+GET  /api/admin/devices/{id}/actions/capabilities
+GET  /api/admin/devices/{id}/actions/{actionId}
+GET  /api/admin/devices/{id}/actions
+```
+
+快捷动作只接受 `DeviceActionType` 枚举。通信未人工确认时 capability 返回禁用原因，后端不会发送报文。
+
 ---
 
 ### GET /api/admin/devices/{id}/latest-location
@@ -85,6 +103,8 @@ SILVER_CARE_ADMIN_PASSWORD=...
 | batteryLevel | Integer | 电量 |
 | gpsValid | Boolean | GPS是否有效 |
 | locatedAt | Instant | 定位时间 |
+| approximateAddress | String | 大概位置名称，可能为空 |
+| addressStatus | String | PENDING / RESOLVED / NOT_FOUND / FAILED / SKIPPED |
 
 ---
 

@@ -9,8 +9,10 @@ Page({
     loading: true,
     errorMsg: '',
     data: { device: {}, latestHealth: null, latestLocation: null },
-    lastHeartbeat: '-',
+    lastOnline: '-',
     measuredAt: '-',
+    healthMetrics: { heartRate: null, systolic: null, diastolic: null, temperature: null,
+      heartTime: '-', pressureTime: '-', temperatureTime: '-' },
     locatedAt: '-',
     displayName: '',
     editing: false,
@@ -60,10 +62,22 @@ Page({
     return request
       .then(res => {
         const displayName = res.device.ownerName || deviceNo
+        const summary = res.healthSummary || {}
+        const latest = res.latestHealth || {}
+        const healthMetrics = {
+          heartRate: summary.heartRate?.value ?? latest.heartRate ?? null,
+          systolic: summary.bloodPressure?.systolic ?? latest.systolicPressure ?? null,
+          diastolic: summary.bloodPressure?.diastolic ?? latest.diastolicPressure ?? null,
+          temperature: summary.temperature?.value ?? latest.bodyTemperature ?? null,
+          heartTime: this.formatTime(summary.heartRate?.measuredAt || latest.measuredAt),
+          pressureTime: this.formatTime(summary.bloodPressure?.measuredAt || latest.measuredAt),
+          temperatureTime: this.formatTime(summary.temperature?.measuredAt || latest.measuredAt)
+        }
         this.setData({
           data: res,
           displayName,
-          lastHeartbeat: res.device.lastHeartbeatAt ? this.formatTime(res.device.lastHeartbeatAt) : '-',
+          healthMetrics,
+          lastOnline: res.device.lastOnlineAt ? this.formatTime(res.device.lastOnlineAt) : '-',
           measuredAt: res.latestHealth?.measuredAt ? this.formatTime(res.latestHealth.measuredAt) : '-',
           locatedAt: res.latestLocation?.locatedAt ? this.formatTime(res.latestLocation.locatedAt) : '-'
         })

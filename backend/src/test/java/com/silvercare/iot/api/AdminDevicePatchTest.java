@@ -17,7 +17,7 @@ class AdminDevicePatchTest {
     private final DeviceRepository deviceRepository = mock(DeviceRepository.class);
 
     private AdminDeviceController controller() {
-        return new AdminDeviceController(deviceRepository, null, null, null);
+        return new AdminDeviceController(deviceRepository, null, null, null, null);
     }
 
     @Test

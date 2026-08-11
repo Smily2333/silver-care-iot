@@ -8,6 +8,7 @@ Page({
     demo: false,
     loading: true,
     records: [],
+    latestMetrics: { heartRate: null, systolic: null, diastolic: null, temperature: null },
     errorMsg: ''
   },
 
@@ -41,7 +42,18 @@ Page({
           ...r,
           measuredAtStr: this.formatTime(r.measuredAt)
         }))
-        this.setData({ records: formatted })
+        const heart = formatted.find(r => r.heartRate != null)
+        const pressure = formatted.find(r => r.systolicPressure != null && r.diastolicPressure != null)
+        const temperature = formatted.find(r => r.bodyTemperature != null)
+        this.setData({
+          records: formatted,
+          latestMetrics: {
+            heartRate: heart?.heartRate ?? null,
+            systolic: pressure?.systolicPressure ?? null,
+            diastolic: pressure?.diastolicPressure ?? null,
+            temperature: temperature?.bodyTemperature ?? null
+          }
+        })
       })
       .catch(err => {
         this.setData({ errorMsg: err.message || '暂时无法加载健康记录' })

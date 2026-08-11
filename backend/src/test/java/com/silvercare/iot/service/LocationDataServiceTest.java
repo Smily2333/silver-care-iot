@@ -7,6 +7,7 @@ import com.silvercare.iot.protocol.ProtocolParser;
 import com.silvercare.iot.repository.LocationRecordRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -25,7 +26,8 @@ class LocationDataServiceTest {
     @Test
     void savesKnownLocationFields() {
         LocationRecordRepository repository = mock(LocationRecordRepository.class);
-        LocationDataService service = new LocationDataService(repository);
+        LocationDataService service = new LocationDataService(repository, mock(ApplicationEventPublisher.class),
+                mock(DeviceActionService.class));
         ProtocolParser parser = new ProtocolParser();
         Device device = new Device();
         device.setDeviceNo("2016001000");
@@ -54,7 +56,8 @@ class LocationDataServiceTest {
     @Test
     void savesSouthAndWestCoordinatesAsNegative() {
         LocationRecordRepository repository = mock(LocationRecordRepository.class);
-        LocationDataService service = new LocationDataService(repository);
+        LocationDataService service = new LocationDataService(repository, mock(ApplicationEventPublisher.class),
+                mock(DeviceActionService.class));
         ProtocolParser parser = new ProtocolParser();
         Device device = new Device();
         device.setDeviceNo("2016001000");
@@ -78,7 +81,8 @@ class LocationDataServiceTest {
     @Test
     void replacesImplausibleFutureLocationTimeWithPacketReceivedAt() {
         LocationRecordRepository repository = mock(LocationRecordRepository.class);
-        LocationDataService service = new LocationDataService(repository);
+        LocationDataService service = new LocationDataService(repository, mock(ApplicationEventPublisher.class),
+                mock(DeviceActionService.class));
         ProtocolParser parser = new ProtocolParser();
         Device device = new Device();
         Instant receivedAt = Instant.parse("2026-07-03T10:19:49Z");

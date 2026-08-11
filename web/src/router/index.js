@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DeviceList from '../views/DeviceList.vue'
-import DeviceDetail from '../views/DeviceDetail.vue'
-import RawPackets from '../views/RawPackets.vue'
-import Login from '../views/Login.vue'
 import { hasAdminCredentials } from '../api/axios.js'
+
+const DeviceList = () => import('../views/DeviceList.vue')
+const DeviceDetail = () => import('../views/DeviceDetail.vue')
+const RawPackets = () => import('../views/RawPackets.vue')
+const Login = () => import('../views/Login.vue')
 
 const routes = [
   { path: '/', redirect: '/devices' },

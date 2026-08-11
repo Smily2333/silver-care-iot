@@ -21,12 +21,14 @@
           {{ row.batteryLevel != null ? row.batteryLevel + '%' : '-' }}
         </template>
       </el-table-column>
-      <el-table-column label="步数" width="100">
-        <template #default="{ row }">{{ row.stepCount ?? '-' }}</template>
-      </el-table-column>
-      <el-table-column label="最后心跳" min-width="180">
+      <el-table-column label="每日步数" width="110">
         <template #default="{ row }">
-          {{ row.lastHeartbeatAt ? new Date(row.lastHeartbeatAt).toLocaleString('zh-CN') : '-' }}
+          {{ row.stepCount != null ? `${row.stepCount} 步` : '—' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="最后在线时间" min-width="180">
+        <template #default="{ row }">
+          {{ formatDateTime(row.lastOnlineAt) }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="100" fixed="right">
@@ -50,7 +52,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { listDevices } from '../api/devices.js'
+import { formatDateTime } from '../utils/format.js'
 
 const devices = ref([])
 const loading = ref(false)
@@ -65,6 +69,8 @@ async function load(page = 0) {
     devices.value = res.data.content
     total.value = res.data.totalElements
     currentPage.value = page
+  } catch (error) {
+    ElMessage.error('设备列表加载失败：' + (error.response?.data?.message ?? error.message))
   } finally {
     loading.value = false
   }

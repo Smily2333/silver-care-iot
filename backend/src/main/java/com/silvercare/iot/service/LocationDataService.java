@@ -6,6 +6,7 @@ import com.silvercare.iot.domain.entity.RawPacketLog;
 import com.silvercare.iot.protocol.ProtocolFrame;
 import com.silvercare.iot.repository.LocationRecordRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,9 +15,14 @@ import java.time.Instant;
 public class LocationDataService {
 
     private final LocationRecordRepository repository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final DeviceActionService actionService;
 
-    public LocationDataService(LocationRecordRepository repository) {
+    public LocationDataService(LocationRecordRepository repository, ApplicationEventPublisher eventPublisher,
+                               DeviceActionService actionService) {
         this.repository = repository;
+        this.eventPublisher = eventPublisher;
+        this.actionService = actionService;
     }
 
     public LocationRecord saveLocation(Device device, ProtocolFrame frame, RawPacketLog packetLog) {
@@ -41,7 +47,13 @@ public class LocationDataService {
         record.setRolloverCount(parseInt(args, 15));
         record.setTerminalStatus(value(args, 16));
         record.setAccuracy(parseLastDecimal(args));
-        return repository.save(record);
+        LocationRecord saved = repository.save(record);
+        eventPublisher.publishEvent(new LocationSavedEvent(saved.getId()));
+        if (Boolean.TRUE.equals(saved.getGpsValid())) {
+            actionService.complete(device.getId(), com.silvercare.iot.domain.DeviceActionType.LOCATE_NOW,
+                    "LOCATION", saved.getId(), true);
+        }
+        return saved;
     }
 
     private Instant parseLocatedAt(String[] args, Instant receivedAt) {

@@ -26,7 +26,7 @@ class DevicePacketDispatcherAlertTest {
 
     private DevicePacketDispatcher dispatcher() {
         return new DevicePacketDispatcher(registry, deviceService, rawPacketLogService,
-                healthDataService, locationDataService, fallAlertService);
+                healthDataService, locationDataService, fallAlertService, mock(DeviceActionService.class));
     }
 
     @Test
@@ -41,6 +41,8 @@ class DevicePacketDispatcherAlertTest {
         packetLog.setReceivedAt(Instant.parse("2018-01-12T07:06:26Z"));
 
         LocationRecord locationRecord = new LocationRecord();
+        locationRecord.setStepCount(14188);
+        locationRecord.setBatteryLevel(51);
 
         when(deviceService.ensureOnline(any())).thenReturn(device);
         when(rawPacketLogService.saveSuccess(any())).thenReturn(packetLog);
@@ -52,6 +54,7 @@ class DevicePacketDispatcherAlertTest {
         );
 
         verify(locationDataService).saveLocation(eq(device), any(), eq(packetLog));
+        verify(deviceService).updateTelemetry("2016001000", 14188, 51);
         verify(fallAlertService).saveAlert(eq(device), any(), eq(locationRecord), eq(packetLog));
         verify(connection).send(contains("AL"));
     }

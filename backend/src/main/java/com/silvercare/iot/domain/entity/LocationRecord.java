@@ -2,6 +2,7 @@ package com.silvercare.iot.domain.entity;
 
 import jakarta.persistence.*;
 import com.silvercare.iot.geo.CoordinateTransform;
+import com.silvercare.iot.domain.AddressResolutionStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,6 +43,15 @@ public class LocationRecord {
     private Integer rolloverCount;
     private String terminalStatus;
     private BigDecimal accuracy;
+
+    @Column(length = 255)
+    private String approximateAddress;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 16)
+    private AddressResolutionStatus addressStatus;
+
+    private Instant addressResolvedAt;
 
     @Column(length = 32)
     private String sourceCommand;
@@ -138,6 +148,30 @@ public class LocationRecord {
 
     public String getSourceCommand() {
         return sourceCommand;
+    }
+
+    public String getApproximateAddress() {
+        return approximateAddress;
+    }
+
+    public void setApproximateAddress(String approximateAddress) {
+        this.approximateAddress = approximateAddress;
+    }
+
+    public AddressResolutionStatus getAddressStatus() {
+        return addressStatus;
+    }
+
+    public void setAddressStatus(AddressResolutionStatus addressStatus) {
+        this.addressStatus = addressStatus;
+    }
+
+    public Instant getAddressResolvedAt() {
+        return addressResolvedAt;
+    }
+
+    public void setAddressResolvedAt(Instant addressResolvedAt) {
+        this.addressResolvedAt = addressResolvedAt;
     }
 
     public Long getRawPacketId() {

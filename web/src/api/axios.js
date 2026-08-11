@@ -3,7 +3,7 @@ import axios from 'axios'
 const ADMIN_AUTH_KEY = 'silverCareAdminAuth'
 
 const instance = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 10000
 })
 

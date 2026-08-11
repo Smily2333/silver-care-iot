@@ -1,153 +1,253 @@
 <template>
-  <div v-loading="loading">
+  <div v-loading="deviceLoading">
     <el-page-header @back="$router.push('/devices')" style="margin-bottom:16px">
       <template #content>设备详情 — {{ device?.deviceNo }}</template>
     </el-page-header>
 
-    <el-tabs v-model="activeTab">
+    <el-alert
+      v-if="deviceError"
+      :title="deviceError"
+      type="error"
+      show-icon
+      :closable="false"
+    />
+
+    <el-tabs v-else v-model="activeTab">
       <el-tab-pane label="基本信息" name="info">
         <el-descriptions :column="2" border style="margin-top:12px">
           <el-descriptions-item label="设备编号">{{ device?.deviceNo }}</el-descriptions-item>
-          <el-descriptions-item label="姓名">{{ device?.ownerName || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="型号">{{ device?.model ?? '-' }}</el-descriptions-item>
+          <el-descriptions-item label="姓名">{{ device?.ownerName || '—' }}</el-descriptions-item>
+          <el-descriptions-item label="型号">{{ device?.model ?? '—' }}</el-descriptions-item>
           <el-descriptions-item label="状态">
             <el-tag :type="device?.status === 'ONLINE' ? 'success' : 'info'">
               {{ device?.status === 'ONLINE' ? '在线' : '离线' }}
             </el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="电量">
-            {{ device?.batteryLevel != null ? device.batteryLevel + '%' : '-' }}
+            {{ device?.batteryLevel != null ? `${device.batteryLevel}%` : '—' }}
           </el-descriptions-item>
-          <el-descriptions-item label="步数">{{ device?.stepCount ?? '-' }}</el-descriptions-item>
-          <el-descriptions-item label="最后心跳">
-            {{ device?.lastHeartbeatAt ? new Date(device.lastHeartbeatAt).toLocaleString('zh-CN') : '-' }}
+          <el-descriptions-item label="每日步数">
+            {{ device?.stepCount != null ? `${device.stepCount} 步` : '—' }}
+          </el-descriptions-item>
+          <el-descriptions-item label="设备最后在线时间">
+            {{ formatDateTime(device?.lastOnlineAt) }}
           </el-descriptions-item>
         </el-descriptions>
 
-        <div style="margin-top:24px">
-          <h4 style="margin-bottom:8px">发送指令</h4>
-          <el-input
-            v-model="commandContent"
-            placeholder="输入指令内容，例如：CR"
-            style="width:300px;margin-right:8px"
-          />
-          <el-button type="primary" @click="sendCmd" :loading="sending">发送</el-button>
-          <div v-if="cmdResult" style="margin-top:8px;color:#67c23a;font-family:monospace">
-            {{ cmdResult }}
-          </div>
-        </div>
+        <DeviceQuickActions
+          v-if="device?.id"
+          :device-id="device.id"
+          @refresh="refreshCurrentData"
+          @action-complete="handleActionComplete"
+        />
+        <AdvancedCommandPanel v-if="device?.id" :device-id="device.id" />
       </el-tab-pane>
 
       <el-tab-pane label="健康记录" name="health" lazy>
-        <el-table :data="healthRecords" stripe style="width:100%;margin-top:12px">
+        <el-alert
+          v-if="healthError"
+          :title="healthError"
+          type="error"
+          show-icon
+          :closable="false"
+          style="margin-top:12px"
+        />
+        <div v-if="healthSummary" class="health-summary">
+          <div class="metric-card">
+            <span>心率</span>
+            <strong>{{ healthSummary.heartRate?.value ?? '—' }} <small>bpm</small></strong>
+            <em>{{ metricHint(healthSummary.heartRate) }}</em>
+          </div>
+          <div class="metric-card">
+            <span>血压</span>
+            <strong>{{ pressureValue(healthSummary.bloodPressure) }} <small>mmHg</small></strong>
+            <em>{{ metricHint(healthSummary.bloodPressure) }}</em>
+          </div>
+          <div class="metric-card">
+            <span>体温</span>
+            <strong>{{ healthSummary.temperature?.value ?? '—' }} <small>℃</small></strong>
+            <em>{{ metricHint(healthSummary.temperature) }}</em>
+          </div>
+        </div>
+        <el-table
+          v-else
+          v-loading="healthLoading"
+          :data="healthRecords"
+          stripe
+          empty-text="暂无健康记录"
+          style="width:100%;margin-top:12px"
+        >
           <el-table-column label="时间" min-width="180">
-            <template #default="{ row }">
-              {{ new Date(row.measuredAt).toLocaleString('zh-CN') }}
-            </template>
+            <template #default="{ row }">{{ formatDateTime(row.measuredAt) }}</template>
           </el-table-column>
-          <el-table-column label="心率(bpm)" width="110">
-            <template #default="{ row }">{{ row.heartRate ?? '-' }}</template>
+          <el-table-column label="心率 (bpm)" width="120">
+            <template #default="{ row }">{{ row.heartRate ?? '—' }}</template>
           </el-table-column>
           <el-table-column label="收缩压" width="90">
-            <template #default="{ row }">{{ row.systolicPressure ?? '-' }}</template>
+            <template #default="{ row }">{{ row.systolicPressure ?? '—' }}</template>
           </el-table-column>
           <el-table-column label="舒张压" width="90">
-            <template #default="{ row }">{{ row.diastolicPressure ?? '-' }}</template>
+            <template #default="{ row }">{{ row.diastolicPressure ?? '—' }}</template>
           </el-table-column>
-          <el-table-column label="体温(℃)" width="100">
-            <template #default="{ row }">{{ row.bodyTemperature ?? '-' }}</template>
+          <el-table-column label="体温 (℃)" width="110">
+            <template #default="{ row }">{{ row.bodyTemperature ?? '—' }}</template>
           </el-table-column>
           <el-table-column label="来源" width="100">
-            <template #default="{ row }">{{ row.sourceCommand }}</template>
+            <template #default="{ row }">{{ row.sourceCommand || '—' }}</template>
+          </el-table-column>
+          <el-table-column label="测量状态" min-width="150">
+            <template #default="{ row }">
+              {{ recordStatus(row) }}
+              <span v-if="row.invalidReason" class="invalid-reason">{{ row.invalidReason }}</span>
+            </template>
           </el-table-column>
         </el-table>
       </el-tab-pane>
 
       <el-tab-pane label="位置轨迹" name="location" lazy>
-        <LocationMap :records="locationRecords" height="420px" style="margin-top:12px" />
-        <el-table :data="locationRecords" stripe style="width:100%;margin-top:12px">
-          <el-table-column label="时间" min-width="180">
-            <template #default="{ row }">
-              {{ new Date(row.locatedAt).toLocaleString('zh-CN') }}
-            </template>
-          </el-table-column>
-          <el-table-column label="纬度" width="120">
-            <template #default="{ row }">{{ row.latitude ?? '-' }}</template>
-          </el-table-column>
-          <el-table-column label="经度" width="120">
-            <template #default="{ row }">{{ row.longitude ?? '-' }}</template>
-          </el-table-column>
-          <el-table-column label="GPS有效" width="90">
-            <template #default="{ row }">
-              <el-tag :type="row.gpsValid ? 'success' : 'warning'" size="small">
-                {{ row.gpsValid ? '是' : '否' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="速度(节)" width="90">
-            <template #default="{ row }">{{ row.speed ?? '-' }}</template>
-          </el-table-column>
-          <el-table-column label="电量" width="80">
-            <template #default="{ row }">
-              {{ row.batteryLevel != null ? row.batteryLevel + '%' : '-' }}
-            </template>
-          </el-table-column>
-        </el-table>
+        <DeviceLocationTab
+          :records="locationRecords"
+          :loading="locationLoading"
+          :error="locationError"
+        />
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { getDevice, getHealthRecords, getLocationRecords, sendCommand } from '../api/devices.js'
-import LocationMap from '../components/LocationMap.vue'
+import { getDevice, getHealthRecords, getHealthSummary, getLocationRecords } from '../api/devices.js'
+import DeviceLocationTab from '../components/device/DeviceLocationTab.vue'
+import DeviceQuickActions from '../components/device/DeviceQuickActions.vue'
+import AdvancedCommandPanel from '../components/device/AdvancedCommandPanel.vue'
+import { formatDateTime } from '../utils/format.js'
 
 const route = useRoute()
 const id = route.params.id
 
-const loading = ref(false)
 const device = ref(null)
 const healthRecords = ref([])
+const healthSummary = ref(null)
 const locationRecords = ref([])
 const activeTab = ref('info')
-const commandContent = ref('')
-const cmdResult = ref('')
-const sending = ref(false)
 
-async function load() {
-  loading.value = true
+const deviceLoading = ref(false)
+const healthLoading = ref(false)
+const locationLoading = ref(false)
+const deviceError = ref('')
+const healthError = ref('')
+const locationError = ref('')
+const healthLoaded = ref(false)
+const locationLoaded = ref(false)
+
+function errorMessage(prefix, error) {
+  return `${prefix}：${error.response?.data?.message ?? error.message}`
+}
+
+async function loadDevice() {
+  deviceLoading.value = true
+  deviceError.value = ''
   try {
-    const [devRes, healthRes, locRes] = await Promise.all([
-      getDevice(id),
-      getHealthRecords(id),
-      getLocationRecords(id)
+    device.value = (await getDevice(id)).data
+  } catch (error) {
+    deviceError.value = errorMessage('设备信息加载失败', error)
+  } finally {
+    deviceLoading.value = false
+  }
+}
+
+async function loadHealth() {
+  if (healthLoaded.value || healthLoading.value) return
+  healthLoading.value = true
+  healthError.value = ''
+  try {
+    const [recordsResponse, summaryResponse] = await Promise.all([
+      getHealthRecords(id), getHealthSummary(id)
     ])
-    device.value = devRes.data
-    healthRecords.value = healthRes.data
-    locationRecords.value = locRes.data
-  } catch (e) {
-    ElMessage.error('加载失败：' + (e.response?.data?.message ?? e.message))
+    healthRecords.value = recordsResponse.data
+    healthSummary.value = summaryResponse.data
+    healthLoaded.value = true
+  } catch (error) {
+    healthError.value = errorMessage('健康记录加载失败', error)
   } finally {
-    loading.value = false
+    healthLoading.value = false
   }
 }
 
-async function sendCmd() {
-  if (!commandContent.value.trim()) return
-  sending.value = true
-  cmdResult.value = ''
+async function loadLocations() {
+  if (locationLoaded.value || locationLoading.value) return
+  locationLoading.value = true
+  locationError.value = ''
   try {
-    const res = await sendCommand(id, commandContent.value.trim())
-    cmdResult.value = '已发送：' + res.data.packet
-  } catch (e) {
-    ElMessage.error('发送失败：' + (e.response?.data?.message ?? e.message))
+    locationRecords.value = (await getLocationRecords(id)).data
+    locationLoaded.value = true
+  } catch (error) {
+    locationError.value = errorMessage('位置记录加载失败', error)
   } finally {
-    sending.value = false
+    locationLoading.value = false
   }
 }
 
-onMounted(load)
+async function refreshCurrentData() {
+  await loadDevice()
+  healthLoaded.value = false
+  locationLoaded.value = false
+  if (activeTab.value === 'health') await loadHealth()
+  if (activeTab.value === 'location') await loadLocations()
+}
+
+async function handleActionComplete(action) {
+  if (action.type === 'LOCATE_NOW') {
+    locationLoaded.value = false
+    if (activeTab.value === 'location') await loadLocations()
+  } else {
+    healthLoaded.value = false
+    if (activeTab.value === 'health') await loadHealth()
+  }
+}
+
+function pressureValue(metric) {
+  return metric ? `${metric.systolic ?? '—'}/${metric.diastolic ?? '—'}` : '—'
+}
+
+function metricHint(metric) {
+  if (!metric) return '暂无有效数据'
+  const freshness = metric.freshness === 'STALE' ? '数据已过期' : formatDateTime(metric.measuredAt)
+  const status = metric.status && metric.status !== 'VALID' ? ` · ${statusText(metric.status)}` : ''
+  return freshness + status
+}
+
+function statusText(status) {
+  return ({ VALID: '有效', TOO_LOW: '超出显示范围（低）', TOO_HIGH: '超出显示范围（高）', INVALID: '无效' })[status] || '状态未知'
+}
+
+function recordStatus(row) {
+  const statuses = [row.heartRateStatus, row.bloodPressureStatus, row.temperatureStatus].filter(Boolean)
+  if (!statuses.length) return '历史数据（未分类）'
+  return [...new Set(statuses.map(statusText))].join('、')
+}
+
+watch(activeTab, tab => {
+  if (tab === 'health') loadHealth()
+  if (tab === 'location') loadLocations()
+})
+
+onMounted(loadDevice)
 </script>
+
+<style scoped>
+.health-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.metric-card { display: flex; flex-direction: column; gap: 5px; padding: 14px; border: 1px solid #e5e9f0; border-radius: 8px; background: #fafbfd; }
+.metric-card span, .metric-card em { color: #7a8796; font-size: 13px; font-style: normal; }
+.metric-card strong { color: #25364a; font-size: 22px; }
+.metric-card small { font-size: 12px; font-weight: normal; }
+.invalid-reason { display: block; color: #b26a00; font-size: 12px; }
+@media (max-width: 760px) { .health-summary { grid-template-columns: 1fr; } }
+</style>

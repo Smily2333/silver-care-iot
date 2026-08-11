@@ -12,6 +12,10 @@ export function getHealthRecords(id) {
   return http.get(`/admin/devices/${id}/health-records`)
 }
 
+export function getHealthSummary(id) {
+  return http.get(`/admin/devices/${id}/health-summary`)
+}
+
 export function getLocationRecords(id) {
   return http.get(`/admin/devices/${id}/location-records`)
 }

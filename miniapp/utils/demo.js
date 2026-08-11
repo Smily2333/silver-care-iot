@@ -19,7 +19,7 @@ export function getDemoOverview() {
       status: 'ONLINE',
       batteryLevel: 82,
       stepCount: 3680,
-      lastHeartbeatAt: isoMinutesAgo(2)
+      lastOnlineAt: isoMinutesAgo(2)
     },
     latestHealth: health,
     latestLocation: location

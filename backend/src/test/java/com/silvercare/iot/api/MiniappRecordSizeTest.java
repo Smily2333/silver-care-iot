@@ -27,7 +27,7 @@ class MiniappRecordSizeTest {
     private final DeviceAccessService deviceAccessService = mock(DeviceAccessService.class);
     private final MiniappPrincipal principal = new MiniappPrincipal(10L);
     private final MiniappDeviceController controller = new MiniappDeviceController(
-            deviceRepository, healthRecordRepository, locationRecordRepository, deviceAccessService);
+            deviceRepository, healthRecordRepository, locationRecordRepository, deviceAccessService, null);
 
     @Test
     void healthRecordsClampsNegativeSizeToOne() {
@@ -48,7 +48,8 @@ class MiniappRecordSizeTest {
 
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(locationRecordRepository)
-                .findByDeviceIdAndGpsValidTrueOrderByLocatedAtDesc(eq(1L), pageable.capture());
+                .findByDeviceIdAndGpsValidTrueAndLocatedAtBeforeOrderByLocatedAtDesc(
+                        eq(1L), org.mockito.ArgumentMatchers.any(), pageable.capture());
         assertThat(pageable.getValue().getPageSize()).isEqualTo(1);
     }
 

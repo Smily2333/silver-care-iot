@@ -1,36 +1,31 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
   application:
     name: silver-care-iot-backend
-  datasource:
-    url: ${SILVER_CARE_DB_URL:jdbc:mysql://127.0.0.1:3306/silver_care?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${SILVER_CARE_DB_USERNAME:silvercare}
-    password: ${SILVER_CARE_DB_PASSWORD:}
+  profiles:
+    default: dev
   jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: ${SILVER_CARE_SHOW_SQL:false}
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
 
 silver-care:
-  admin:
-    username: ${SILVER_CARE_ADMIN_USERNAME:admin}
-    password: ${SILVER_CARE_ADMIN_PASSWORD:}
   gateway:
-    enabled: true
-    port: 9001
     idle-timeout-seconds: 180
     max-client-threads: 200
     client-queue-capacity: 200
     accept-backlog: 128
     max-frame-length-bytes: 8192
-  wechat-miniapp:
-    app-id: ${WECHAT_MINIAPP_APPID:wx0d83544c7be6bc73}
-    app-secret: ${WECHAT_MINIAPP_APP_SECRET:}
-    session-ttl-days: ${WECHAT_MINIAPP_SESSION_TTL_DAYS:30}
+  geocoding:
+    connect-timeout-millis: 2000
+    read-timeout-millis: 4000
+  health:
+    freshness-minutes: 180
+  device-actions:
+    connection-freshness-seconds: 180
+    locate-timeout-seconds: 120
+    health-timeout-seconds: 180
+    timeout-scan-millis: 10000

@@ -20,5 +20,7 @@ Thumbs.db
 
 # Env
 .env
+.env.local
 application-local.yml
 picture/
+/tmp/

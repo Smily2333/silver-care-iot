@@ -449,3 +449,8 @@ page {
 .confirm-btn-disabled {
   opacity: 0.35;
 }
+.metric-time {
+  margin-top: 6rpx;
+  color: #9aa6b2;
+  font-size: 20rpx;
+}

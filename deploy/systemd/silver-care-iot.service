@@ -1,0 +1,19 @@
+[Unit]
+Description=Silver Care IoT backend
+After=network-online.target mysql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=silvercare
+Group=silvercare
+WorkingDirectory=/opt/silver-care-iot
+EnvironmentFile=/etc/silver-care-iot/backend-prod.env
+ExecStart=/usr/bin/java -jar /opt/silver-care-iot/silver-care-iot-backend.jar
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

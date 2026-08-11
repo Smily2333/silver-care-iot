@@ -19,7 +19,7 @@ class MiniappUpdateOwnerNameTest {
     private final DeviceRepository deviceRepository = mock(DeviceRepository.class);
     private final DeviceAccessService deviceAccessService = mock(DeviceAccessService.class);
     private final MiniappDeviceController controller =
-            new MiniappDeviceController(deviceRepository, null, null, deviceAccessService);
+            new MiniappDeviceController(deviceRepository, null, null, deviceAccessService, null);
     private final MiniappPrincipal principal = new MiniappPrincipal(10L);
 
     @Test

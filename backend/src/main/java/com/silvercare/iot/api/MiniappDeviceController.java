@@ -9,6 +9,7 @@ import com.silvercare.iot.repository.HealthRecordRepository;
 import com.silvercare.iot.repository.LocationRecordRepository;
 import com.silvercare.iot.security.MiniappPrincipal;
 import com.silvercare.iot.service.DeviceAccessService;
+import com.silvercare.iot.service.HealthSummaryService;
 import org.springframework.data.domain.PageRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/miniapp/devices")
@@ -33,15 +36,18 @@ public class MiniappDeviceController {
     private final HealthRecordRepository healthRecordRepository;
     private final LocationRecordRepository locationRecordRepository;
     private final DeviceAccessService deviceAccessService;
+    private final HealthSummaryService healthSummaryService;
 
     public MiniappDeviceController(DeviceRepository deviceRepository,
                                    HealthRecordRepository healthRecordRepository,
                                    LocationRecordRepository locationRecordRepository,
-                                   DeviceAccessService deviceAccessService) {
+                                   DeviceAccessService deviceAccessService,
+                                   HealthSummaryService healthSummaryService) {
         this.deviceRepository = deviceRepository;
         this.healthRecordRepository = healthRecordRepository;
         this.locationRecordRepository = locationRecordRepository;
         this.deviceAccessService = deviceAccessService;
+        this.healthSummaryService = healthSummaryService;
     }
 
     @GetMapping("/{deviceNo}/overview")
@@ -51,8 +57,10 @@ public class MiniappDeviceController {
         HealthRecord latestHealth = healthRecordRepository
                 .findFirstByDeviceIdOrderByMeasuredAtDesc(device.getId()).orElse(null);
         LocationRecord latestLocation = locationRecordRepository
-                .findFirstByDeviceIdOrderByLocatedAtDesc(device.getId()).orElse(null);
-        return MiniappOverviewResponse.of(device, latestHealth, latestLocation);
+                .findFirstByDeviceIdAndLocatedAtBeforeOrderByLocatedAtDesc(
+                        device.getId(), locationCutoff()).orElse(null);
+        return MiniappOverviewResponse.of(device, latestHealth, latestLocation,
+                healthSummaryService == null ? null : healthSummaryService.get(device.getId()));
     }
 
     @GetMapping("/{deviceNo}/health-records")
@@ -71,8 +79,12 @@ public class MiniappDeviceController {
                                                  @RequestParam(defaultValue = "20") int size) {
         int clampedSize = Math.max(1, Math.min(size, 100));
         Device device = deviceAccessService.requireBoundDevice(principal.userId(), deviceNo);
-        return locationRecordRepository.findByDeviceIdAndGpsValidTrueOrderByLocatedAtDesc(
-                device.getId(), PageRequest.of(0, clampedSize));
+        return locationRecordRepository.findByDeviceIdAndGpsValidTrueAndLocatedAtBeforeOrderByLocatedAtDesc(
+                device.getId(), locationCutoff(), PageRequest.of(0, clampedSize));
+    }
+
+    private Instant locationCutoff() {
+        return Instant.now().plus(Duration.ofDays(30));
     }
 
     public record BindRequest(

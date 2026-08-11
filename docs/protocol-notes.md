@@ -37,6 +37,10 @@ Heartbeat:
 LK,steps,rolloverCount,batteryPercent
 ```
 
+`steps` is supplied by the watch; the backend does not calculate it from location points. The same value
+also appears at field 14 of location-like packets. The current product label is “每日步数”, based on the
+device's daily counter/reset behaviour.
+
 The server replies:
 
 ```text
@@ -73,3 +77,4 @@ command,date,time,gpsValid,lat,latHemisphere,lng,lngHemisphere,speed,direction,a
 ```
 
 `UD2` is blind-zone supplement data. `AL` is alarm upload. MVP stores them and treats location fields the same where present.
+The device summary refreshes battery and daily steps from both heartbeat and location-like packets.

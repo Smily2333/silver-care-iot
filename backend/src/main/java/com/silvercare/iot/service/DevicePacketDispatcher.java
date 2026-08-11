@@ -26,19 +26,22 @@ public class DevicePacketDispatcher {
     private final HealthDataService healthDataService;
     private final LocationDataService locationDataService;
     private final FallAlertService fallAlertService;
+    private final DeviceActionService actionService;
 
     public DevicePacketDispatcher(DeviceConnectionRegistry registry,
                                   DeviceService deviceService,
                                   RawPacketLogService rawPacketLogService,
                                   HealthDataService healthDataService,
                                   LocationDataService locationDataService,
-                                  FallAlertService fallAlertService) {
+                                  FallAlertService fallAlertService,
+                                  DeviceActionService actionService) {
         this.registry = registry;
         this.deviceService = deviceService;
         this.rawPacketLogService = rawPacketLogService;
         this.healthDataService = healthDataService;
         this.locationDataService = locationDataService;
         this.fallAlertService = fallAlertService;
+        this.actionService = actionService;
     }
 
     public void dispatch(String rawPacket, DeviceConnection connection) {
@@ -60,15 +63,17 @@ public class DevicePacketDispatcher {
                     sendAck(frame, connection);
                 }
                 case "UD", "UD2", "UD_LTE", "UD_WCDMA", "UD_TDSCDMA", "UD_CDMA" ->
-                        locationDataService.saveLocation(device, frame, packetLog);
+                        saveLocationAndTelemetry(device, frame, packetLog);
                 case "AL", "AL_LTE", "AL_WCDMA", "AL_TDSCDMA", "AL_CDMA" -> {
-                    LocationRecord locationRecord = locationDataService.saveLocation(device, frame, packetLog);
+                    LocationRecord locationRecord = saveLocationAndTelemetry(device, frame, packetLog);
                     fallAlertService.saveAlert(device, frame, locationRecord, packetLog);
                     sendAck(frame, connection);
                 }
                 case "TKQ" -> sendAck(frame, connection);
-                case "CR", "UPLOAD" ->
-                        log.debug("Device {} acknowledged {}", frame.deviceNo(), frame.command());
+                case "CR", "UPLOAD", "hrtstart", "bodytemp2", "bodytemp", "BTTIMESET", "FALLDOWN", "LSSET" -> {
+                    actionService.acknowledge(device, frame.command());
+                    log.debug("Device {} acknowledged {}", frame.deviceNo(), frame.command());
+                }
                 default -> log.info("Packet command ignored for MVP: {}", frame.command());
             }
         } catch (ProtocolParseException ex) {
@@ -103,6 +108,12 @@ public class DevicePacketDispatcher {
         } catch (IOException ex) {
             log.warn("Failed to reply heartbeat to device {}", frame.deviceNo(), ex);
         }
+    }
+
+    private LocationRecord saveLocationAndTelemetry(Device device, ProtocolFrame frame, RawPacketLog packetLog) {
+        LocationRecord record = locationDataService.saveLocation(device, frame, packetLog);
+        deviceService.updateTelemetry(frame.deviceNo(), record.getStepCount(), record.getBatteryLevel());
+        return record;
     }
 
     private Integer parseInt(String[] args, int index) {

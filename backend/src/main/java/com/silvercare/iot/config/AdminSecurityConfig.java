@@ -32,7 +32,7 @@ public class AdminSecurityConfig {
                                                PasswordEncoder passwordEncoder) {
         if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
             throw new IllegalStateException(
-                    "SILVER_CARE_ADMIN_USERNAME and SILVER_CARE_ADMIN_PASSWORD must be configured");
+                    "Admin username and password must be configured for the active Spring profile");
         }
         return new InMemoryUserDetailsManager(User.withUsername(username)
                 .password(passwordEncoder.encode(password))

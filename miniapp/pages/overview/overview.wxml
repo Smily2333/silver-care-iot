@@ -29,7 +29,7 @@
         </text>
       </view>
       <text class="device-model">{{data.device.model || '智能健康手表'}}</text>
-      <text class="last-heartbeat">最后同步：{{lastHeartbeat}}</text>
+      <text class="last-heartbeat">设备最后在线时间：{{lastOnline}}</text>
     </view>
 
     <!-- 电量 + 步数 行 -->
@@ -47,7 +47,7 @@
           <text class="stat-icon">👟</text>
         </view>
         <text class="stat-value">{{data.device.stepCount != null ? data.device.stepCount : '--'}}</text>
-        <text class="stat-label">今日步数</text>
+        <text class="stat-label">每日步数</text>
       </view>
     </view>
   </view>
@@ -73,28 +73,31 @@
         <!-- 心率 -->
         <view class="metric-item">
           <view class="metric-ring heart-ring">
-            <text class="metric-main-val">{{data.latestHealth.heartRate != null ? data.latestHealth.heartRate : '--'}}</text>
+            <text class="metric-main-val">{{healthMetrics.heartRate != null ? healthMetrics.heartRate : '--'}}</text>
           </view>
           <text class="metric-label">心率</text>
           <text class="metric-unit">bpm</text>
+          <text class="metric-time">{{healthMetrics.heartTime}}</text>
         </view>
         <!-- 血压 -->
         <view class="metric-item">
           <view class="metric-ring bp-ring">
-            <text class="metric-bp-val">{{data.latestHealth.systolicPressure != null ? data.latestHealth.systolicPressure : '--'}}</text>
+            <text class="metric-bp-val">{{healthMetrics.systolic != null ? healthMetrics.systolic : '--'}}</text>
             <text class="metric-bp-sep">/</text>
-            <text class="metric-bp-val">{{data.latestHealth.diastolicPressure != null ? data.latestHealth.diastolicPressure : '--'}}</text>
+            <text class="metric-bp-val">{{healthMetrics.diastolic != null ? healthMetrics.diastolic : '--'}}</text>
           </view>
           <text class="metric-label">血压</text>
           <text class="metric-unit">mmHg</text>
+          <text class="metric-time">{{healthMetrics.pressureTime}}</text>
         </view>
         <!-- 体温 -->
         <view class="metric-item">
           <view class="metric-ring temp-ring">
-            <text class="metric-main-val">{{data.latestHealth.bodyTemperature != null ? data.latestHealth.bodyTemperature : '--'}}</text>
+            <text class="metric-main-val">{{healthMetrics.temperature != null ? healthMetrics.temperature : '--'}}</text>
           </view>
           <text class="metric-label">体温</text>
           <text class="metric-unit">℃</text>
+          <text class="metric-time">{{healthMetrics.temperatureTime}}</text>
         </view>
       </view>
     </view>

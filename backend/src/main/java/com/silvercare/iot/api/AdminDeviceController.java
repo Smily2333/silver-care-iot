@@ -3,6 +3,9 @@ package com.silvercare.iot.api;
 import com.silvercare.iot.domain.entity.Device;
 import com.silvercare.iot.domain.entity.HealthRecord;
 import com.silvercare.iot.domain.entity.LocationRecord;
+import com.silvercare.iot.api.dto.AdminLocationRecordResponse;
+import com.silvercare.iot.api.dto.AdminHealthSummaryResponse;
+import com.silvercare.iot.service.HealthSummaryService;
 import com.silvercare.iot.protocol.ProtocolParser;
 import com.silvercare.iot.repository.DeviceRepository;
 import com.silvercare.iot.repository.HealthRecordRepository;
@@ -23,6 +26,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 @RestController
@@ -33,16 +38,19 @@ public class AdminDeviceController {
     private final HealthRecordRepository healthRecordRepository;
     private final LocationRecordRepository locationRecordRepository;
     private final DeviceConnectionRegistry connectionRegistry;
+    private final HealthSummaryService healthSummaryService;
     private final ProtocolParser parser = new ProtocolParser();
 
     public AdminDeviceController(DeviceRepository deviceRepository,
                                  HealthRecordRepository healthRecordRepository,
                                  LocationRecordRepository locationRecordRepository,
-                                 DeviceConnectionRegistry connectionRegistry) {
+                                 DeviceConnectionRegistry connectionRegistry,
+                                 HealthSummaryService healthSummaryService) {
         this.deviceRepository = deviceRepository;
         this.healthRecordRepository = healthRecordRepository;
         this.locationRecordRepository = locationRecordRepository;
         this.connectionRegistry = connectionRegistry;
+        this.healthSummaryService = healthSummaryService;
     }
 
     @GetMapping
@@ -65,14 +73,29 @@ public class AdminDeviceController {
         return healthRecordRepository.findTop100ByDeviceIdOrderByMeasuredAtDesc(id);
     }
 
+    @GetMapping("/{id}/health-summary")
+    public AdminHealthSummaryResponse healthSummary(@PathVariable Long id) {
+        deviceRepository.findById(id).orElseThrow();
+        return healthSummaryService.get(id);
+    }
+
     @GetMapping("/{id}/latest-location")
-    public LocationRecord latestLocation(@PathVariable Long id) {
-        return locationRecordRepository.findFirstByDeviceIdOrderByLocatedAtDesc(id).orElse(null);
+    public AdminLocationRecordResponse latestLocation(@PathVariable Long id) {
+        return locationRecordRepository.findFirstByDeviceIdAndLocatedAtBeforeOrderByLocatedAtDesc(id, locationCutoff())
+                .map(AdminLocationRecordResponse::from)
+                .orElse(null);
     }
 
     @GetMapping("/{id}/location-records")
-    public List<LocationRecord> locationRecords(@PathVariable Long id) {
-        return locationRecordRepository.findTop100ByDeviceIdOrderByLocatedAtDesc(id);
+    public List<AdminLocationRecordResponse> locationRecords(@PathVariable Long id) {
+        return locationRecordRepository.findTop100ByDeviceIdAndLocatedAtBeforeOrderByLocatedAtDesc(
+                        id, locationCutoff()).stream()
+                .map(AdminLocationRecordResponse::from)
+                .toList();
+    }
+
+    private Instant locationCutoff() {
+        return Instant.now().plus(Duration.ofDays(30));
     }
 
     @PostMapping("/{id}/send-command")

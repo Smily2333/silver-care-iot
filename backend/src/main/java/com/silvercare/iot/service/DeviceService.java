@@ -34,9 +34,24 @@ public class DeviceService {
     public Device updateHeartbeat(String deviceNo, Integer steps, Integer batteryLevel) {
         Device device = ensureOnline(deviceNo);
         device.setLastHeartbeatAt(Instant.now());
-        device.setStepCount(steps);
-        device.setBatteryLevel(batteryLevel);
+        applyTelemetry(device, steps, batteryLevel);
         return deviceRepository.save(device);
+    }
+
+    @Transactional
+    public Device updateTelemetry(String deviceNo, Integer steps, Integer batteryLevel) {
+        Device device = ensureOnline(deviceNo);
+        applyTelemetry(device, steps, batteryLevel);
+        return deviceRepository.save(device);
+    }
+
+    private void applyTelemetry(Device device, Integer steps, Integer batteryLevel) {
+        if (steps != null && steps >= 0) {
+            device.setStepCount(steps);
+        }
+        if (batteryLevel != null && batteryLevel >= 0 && batteryLevel <= 100) {
+            device.setBatteryLevel(batteryLevel);
+        }
     }
 
     @Transactional
