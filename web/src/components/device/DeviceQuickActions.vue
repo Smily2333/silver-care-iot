@@ -4,6 +4,13 @@
       <h4>快捷操作</h4>
       <span>只有人工确认过的通信能力才会启用</span>
     </div>
+    <el-alert
+      class="wear-warning"
+      type="warning"
+      :closable="false"
+      show-icon
+      title="当前固件无法可靠识别佩戴状态；未佩戴时体温仍可能返回正常区间数值，请结合实际佩戴情况判断。"
+    />
     <div class="button-row">
       <el-tooltip v-for="item in buttons" :key="item.type" :content="disabledReason(item.type)" :disabled="canRun(item.type)">
         <span>
@@ -110,5 +117,6 @@ onBeforeUnmount(() => clearTimeout(timer))
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
 .section-heading h4 { margin: 0; }
 .section-heading span { color: #8a96a5; font-size: 12px; }
+.wear-warning { margin-bottom: 12px; }
 .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
 </style>

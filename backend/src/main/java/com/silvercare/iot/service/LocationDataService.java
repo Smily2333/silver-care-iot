@@ -49,10 +49,8 @@ public class LocationDataService {
         record.setAccuracy(parseLastDecimal(args));
         LocationRecord saved = repository.save(record);
         eventPublisher.publishEvent(new LocationSavedEvent(saved.getId()));
-        if (Boolean.TRUE.equals(saved.getGpsValid())) {
-            actionService.complete(device.getId(), com.silvercare.iot.domain.DeviceActionType.LOCATE_NOW,
-                    "LOCATION", saved.getId(), true);
-        }
+        actionService.complete(device.getId(), com.silvercare.iot.domain.DeviceActionType.LOCATE_NOW,
+                "LOCATION", saved.getId(), Boolean.TRUE.equals(saved.getGpsValid()));
         return saved;
     }
 

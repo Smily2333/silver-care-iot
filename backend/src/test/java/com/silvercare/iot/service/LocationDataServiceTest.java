@@ -3,6 +3,7 @@ package com.silvercare.iot.service;
 import com.silvercare.iot.domain.entity.Device;
 import com.silvercare.iot.domain.entity.LocationRecord;
 import com.silvercare.iot.domain.entity.RawPacketLog;
+import com.silvercare.iot.domain.DeviceActionType;
 import com.silvercare.iot.protocol.ProtocolParser;
 import com.silvercare.iot.repository.LocationRecordRepository;
 import org.junit.jupiter.api.Test;
@@ -26,8 +27,9 @@ class LocationDataServiceTest {
     @Test
     void savesKnownLocationFields() {
         LocationRecordRepository repository = mock(LocationRecordRepository.class);
+        DeviceActionService actionService = mock(DeviceActionService.class);
         LocationDataService service = new LocationDataService(repository, mock(ApplicationEventPublisher.class),
-                mock(DeviceActionService.class));
+                actionService);
         ProtocolParser parser = new ProtocolParser();
         Device device = new Device();
         device.setDeviceNo("2016001000");
@@ -51,13 +53,15 @@ class LocationDataServiceTest {
                 .atTime(LocalTime.of(7, 6, 25))
                 .atZone(ZoneOffset.UTC)
                 .toInstant());
+        verify(actionService).complete(null, DeviceActionType.LOCATE_NOW, "LOCATION", null, true);
     }
 
     @Test
     void savesSouthAndWestCoordinatesAsNegative() {
         LocationRecordRepository repository = mock(LocationRecordRepository.class);
+        DeviceActionService actionService = mock(DeviceActionService.class);
         LocationDataService service = new LocationDataService(repository, mock(ApplicationEventPublisher.class),
-                mock(DeviceActionService.class));
+                actionService);
         ProtocolParser parser = new ProtocolParser();
         Device device = new Device();
         device.setDeviceNo("2016001000");
@@ -81,8 +85,9 @@ class LocationDataServiceTest {
     @Test
     void replacesImplausibleFutureLocationTimeWithPacketReceivedAt() {
         LocationRecordRepository repository = mock(LocationRecordRepository.class);
+        DeviceActionService actionService = mock(DeviceActionService.class);
         LocationDataService service = new LocationDataService(repository, mock(ApplicationEventPublisher.class),
-                mock(DeviceActionService.class));
+                actionService);
         ProtocolParser parser = new ProtocolParser();
         Device device = new Device();
         Instant receivedAt = Instant.parse("2026-07-03T10:19:49Z");
@@ -96,6 +101,7 @@ class LocationDataServiceTest {
         );
 
         assertThat(result.getLocatedAt()).isEqualTo(receivedAt);
+        verify(actionService).complete(null, DeviceActionType.LOCATE_NOW, "LOCATION", null, false);
     }
 
     private RawPacketLog packetLog(Instant receivedAt) {
