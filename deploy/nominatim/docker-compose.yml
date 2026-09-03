@@ -1,0 +1,36 @@
+services:
+  nominatim:
+    # Pin both release and build timestamp. Update deliberately after a tested upgrade.
+    image: mediagis/nominatim:5.3-2026-06-23T09-03
+    container_name: silver-care-nominatim
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${NOMINATIM_HTTP_PORT:-7070}:8080"
+    environment:
+      PBF_PATH: /nominatim/import/${OSM_PBF_FILE}
+      NOMINATIM_PASSWORD: ${NOMINATIM_PASSWORD}
+      IMPORT_WIKIPEDIA: "false"
+      IMPORT_US_POSTCODES: "false"
+      IMPORT_GB_POSTCODES: "false"
+      REVERSE_ONLY: "true"
+      FREEZE: "true"
+      THREADS: ${NOMINATIM_THREADS:-4}
+      POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-2GB}
+      POSTGRES_WORK_MEM: ${POSTGRES_WORK_MEM:-128MB}
+      POSTGRES_MAINTENANCE_WORK_MEM: ${POSTGRES_MAINTENANCE_WORK_MEM:-1GB}
+    volumes:
+      - ${NOMINATIM_DATA_DIR}/postgres:/var/lib/postgresql/16/main
+      - ${NOMINATIM_DATA_DIR}/flatnode:/nominatim/flatnode
+      - ${NOMINATIM_DATA_DIR}/import:/nominatim/import:ro
+    shm_size: ${NOMINATIM_SHM_SIZE:-1gb}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS 'http://127.0.0.1:8080/status?format=json' >/dev/null"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 20m
+    logging:
+      driver: local
+      options:
+        max-size: 20m
+        max-file: "5"
